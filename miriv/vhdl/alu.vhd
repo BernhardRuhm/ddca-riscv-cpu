@@ -19,6 +19,10 @@ end alu;
 architecture rtl of alu is
 begin
 
+	Z <= '1' when (op = ALU_SUB and A = B)  else
+		 '0' when (op = ALU_SUB and A /= B) else 
+		 not R(0) when (op = ALU_SLT or op = ALU_SLTU) else
+		 '-';
 
 	calculation : process(all)
 	begin
