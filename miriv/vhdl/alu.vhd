@@ -18,4 +18,38 @@ end alu;
 
 architecture rtl of alu is
 begin
+
+
+	calculation : process(all)
+	begin
+		if (res_n = '0') then
+			R <= ohters( => '0');
+			Z <= '-';
+		elsif (rising_edge(clk)) then
+			case op is
+				when ALU_NOP =>
+					R <= B;
+				when ALU_SLT =>
+					R <= (0 => '1', others => '0') when signed(A) < signed(B) else (others => '0');
+				when ALU_SLTU =>
+					R <= (0 => '1', others => '0') when unsigned(A) < unsigned(B) else (others => '0');
+				when ALU_SLL =>
+					R <= shift_left(unsigned(A), to_integer(unsigned(B(4 downto 0))));
+				when ALU_SRL =>
+					R <= shift_right(unsigned(A), to_integer(unsigned(B(4 downto 0))));
+				when ALU_SRA =>
+					R <= shift_right(signed(A), to_integer(unsigned(B(4 downto 0))));
+				when ALU_ADD =>
+					R <= std_logic_vector(signed(A) + signed(B));
+				when ALU_SUB =>
+					R <= std_logic_vector(signed(A) - signed(B));
+				when ALU_AND => 
+					R <= A and B;
+				when ALU_OR =>
+					R <= A or B;
+				when ALU_XOR =>
+					R <= A xor B;
+			end op;
+		end if;
+	end process;
 end architecture;
