@@ -1,0 +1,7 @@
+work
+transcript
+modelsim.ini
+*.cr.mti
+*.wlf
+output.txt
+*.mif
