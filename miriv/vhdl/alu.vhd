@@ -26,10 +26,8 @@ begin
 
 	calculation : process(all)
 	begin
-		if (res_n = '0') then
 			R <= ohters( => '0');
 			Z <= '-';
-		elsif (rising_edge(clk)) then
 			case op is
 				when ALU_NOP =>
 					R <= B;
