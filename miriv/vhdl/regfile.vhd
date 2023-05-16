@@ -18,5 +18,41 @@ entity regfile is
 end entity;
 
 architecture rtl of regfile is
+	type reg_mem_t is array (REG_COUNT-1 downto 0) of data_type;	
 begin
+
+	mem_access : process(clk)
+		variable reg_mem : reg_mem_t;
+		variable last_raddr1, last_raddr2 : reg_adr_type;
+	begin
+		if (res_n = '0') then
+			reg_mem := (others => (others => '0'));
+			last_raddr1 := ZERO_REG;
+			last_raddr2 := ZERO_REG;
+		elsif rising_edge(clk) then
+			if (stall = '1') then
+				rddata1 <= reg_mem(to_integer(unsigned(last_raddr1)));
+				rddata2 <= reg_mem(to_integer(unsigned(last_raddr2)));
+			else 
+				if (regwrite = '1' and wraddr /= ZERO_REG) then
+					reg_mem(to_integer(unsigned(wraddr))) := wrdata;
+				end if;
+				
+				if (wrdata = rdaddr1 and regwrite = '1') then
+					rddata1 <= wrdata;
+				else 
+					rddata1 <= reg_mem(to_integer(unsigned(rdaddr1)));
+				end if;
+
+				if (wrdata = rdaddr2 and regwrite = '1') then
+					rddata2 <= wrdata;
+				else 
+					rddata2 <= reg_mem(to_integer(unsigned(rdaddr2)));
+				end if;
+
+				last_raddr1 := rdaddr1;
+				last_raddr2 := rdaddr2;
+			end if;
+		end if;
+	end process;
 end architecture;
