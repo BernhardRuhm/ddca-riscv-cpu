@@ -107,16 +107,17 @@ begin
 	);
 
 	stimulus : process
-		variable fstatus : file_open_status;
+		variable input_fstatus : file_open_status;
+		variable output_fstatus : file_open_status;
 		variable output_ref : output_t;
 	begin
 		
-		file_open(fstatus, input_file, "testdata/input.txt", READ_MODE);
-		file_open(fstatus, output_file, "testdata/output.txt", READ_MODE);
+		file_open(input_fstatus, input_file, "testdata/input.txt", READ_MODE);
+		file_open(output_fstatus, output_file, "testdata/output.txt", READ_MODE);
 
-		while not endfile(input_file) loop
-			output_ref := read_next_output(output_file);	
+		while not endfile(input_file) and not endfile(output_file) loop
 			input <= read_next_input(input_file);
+			output_ref := read_next_output(output_file);	
 			wait for 1 ns;
 			check_output(output_ref);
 		end loop;
