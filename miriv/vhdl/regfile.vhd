@@ -21,7 +21,7 @@ architecture rtl of regfile is
 	type reg_mem_t is array (REG_COUNT-1 downto 0) of data_type;	
 begin
 
-	mem_access : process(clk)
+	mem_access : process(all)
 		variable reg_mem : reg_mem_t;
 		variable last_raddr1, last_raddr2 : reg_adr_type;
 	begin
@@ -38,13 +38,13 @@ begin
 					reg_mem(to_integer(unsigned(wraddr))) := wrdata;
 				end if;
 				
-				if (wrdata = rdaddr1 and regwrite = '1') then
+				if (wraddr = rdaddr1 and wraddr /= ZERO_REG and regwrite = '1') then
 					rddata1 <= wrdata;
 				else 
 					rddata1 <= reg_mem(to_integer(unsigned(rdaddr1)));
 				end if;
 
-				if (wrdata = rdaddr2 and regwrite = '1') then
+				if (wraddr = rdaddr2 and wraddr /= ZERO_REG and regwrite = '1') then
 					rddata2 <= wrdata;
 				else 
 					rddata2 <= reg_mem(to_integer(unsigned(rdaddr2)));
