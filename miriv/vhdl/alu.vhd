@@ -21,18 +21,28 @@ begin
 
 	calculation : process(all)
 	begin
-		Z <= '1' when (op = ALU_SUB and A = B)  else
-			 '0' when (op = ALU_SUB and A /= B) else 
-			 not R(0) when (op = ALU_SLT or op = ALU_SLTU) else
-			 '-';
+
+		Z <= '-';
 
 		case op is
 			when ALU_NOP =>
 				R <= B;
 			when ALU_SLT =>
-				R <= (0 => '1', others => '0') when signed(A) < signed(B) else (others => '0');
+				if (signed(A) < signed(B)) then
+					R <= (0 => '1', others => '0');
+					Z <= '0';
+				else 
+					R <= (others => '0');
+					Z <= '1';
+				end if;
 			when ALU_SLTU =>
-				R <= (0 => '1', others => '0') when unsigned(A) < unsigned(B) else (others => '0');
+				if (unsigned(A) < unsigned(B)) then
+					R <= (0 => '1', others => '0');
+					Z <= '0';
+				else 
+					R <= (others => '0');
+					Z <= '1';
+				end if;
 			when ALU_SLL =>
 				R <= std_logic_vector(shift_left(unsigned(A), to_integer(unsigned(B(4 downto 0)))));
 			when ALU_SRL =>
@@ -43,6 +53,11 @@ begin
 				R <= std_logic_vector(signed(A) + signed(B));
 			when ALU_SUB =>
 				R <= std_logic_vector(signed(A) - signed(B));
+				if (A = B) then
+					Z <= '1';
+				else
+					Z <= '0';
+				end if;
 			when ALU_AND => 
 				R <= A and B;
 			when ALU_OR =>
