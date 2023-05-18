@@ -21,7 +21,7 @@ architecture rtl of regfile is
 	type reg_mem_t is array (REG_COUNT-1 downto 0) of data_type;	
 begin
 
-	mem_access : process(clk)
+	reg_access : process(clk)
 		variable reg_mem : reg_mem_t;
 		variable last_raddr1, last_raddr2 : reg_adr_type;
 	begin
