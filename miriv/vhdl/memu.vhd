@@ -26,4 +26,7 @@ end entity;
 
 architecture rtl of memu is
 begin
+	mem_access : process(all)
+	begin
+	end process;	
 end architecture;
