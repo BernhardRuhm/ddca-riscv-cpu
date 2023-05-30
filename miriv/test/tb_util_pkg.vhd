@@ -177,6 +177,7 @@ package body tb_util_pkg is
 				when 'd' | 'D' => temp := x"d";
 				when 'e' | 'E' => temp := x"e";
 				when 'f' | 'F' => temp := x"f";
+				when '-' => temp := "----";
 				when others => report "Conversion Error: char: " & hex(hex'high-i) severity error;
 			end case;
 			ret_value((i+1)*4-1 downto i*4) := temp;
