@@ -12,7 +12,7 @@ use work.core_pkg.all;
 use work.op_pkg.all;
 use work.tb_util_pkg.all;
 
-entity tb is
+entity memu_tb is
 end entity;
 
 architecture tb of memu_tb is
@@ -35,11 +35,11 @@ architecture tb of memu_tb is
 	constant CLK_PERIOD : time := 10 ns;
 
 	signal clk : std_logic;
-	signkal res_n : std_logic := '0';
+	signal res_n : std_logic := '0';
 	signal stop : boolean := false;
 
 	file input_file : text;
-	file output_ref_file : text;
+	file output_file : text;
 
 	signal input : input_t := (
 		op => MEMU_NOP,
@@ -94,19 +94,19 @@ architecture tb of memu_tb is
 		result.XS := str_to_sl(l(1));
 
 		l := get_next_valid_line(f);
-		result.M.adress := bin_to_slv(l.all, ADDR_WIDTH);
+		result.M.address := bin_to_slv(l.all, ADDR_WIDTH);
 
 		l := get_next_valid_line(f);
-		result.rd := str_to_sl(l(1));
+		result.M.rd := str_to_sl(l(1));
 
 		l := get_next_valid_line(f);
-		result.wr := str_to_sl(l(1));
+		result.M.wr := str_to_sl(l(1));
 
 		l := get_next_valid_line(f);
-		result.byteena := bin_to_slv(l.all, BYTEEN_WIDTH);
+		result.M.byteena := bin_to_slv(l.all, BYTEEN_WIDTH);
 
 		l := get_next_valid_line(f);
-		result.wrdata := hex_to_slv(l.all, DATA_WIDTH);
+		result.M.wrdata := hex_to_slv(l.all, DATA_WIDTH);
 
 		return result;
 	end function;
@@ -117,15 +117,64 @@ architecture tb of memu_tb is
 		passed := (output = output_ref);
 
 		if passed then
-		& ""
 			report "PASSED: "
+		& " op.memread = " & to_string(input.op.memread)
+		& " op.memwrite = " & to_string(input.op.memwrite)
+		& " op.memtype = " & to_string(input.op.memtype)
+		& " A = " & to_hstring(input.A)
+		& " W = " & to_hstring(input.W)
+		& " D.busy = " & to_string(input.D.busy)
+		& " D.rddata = " & to_hstring(input.D.rddata)
+		& lf
 			severity note;
 		else
 			report "FAILED: "
+		& " op.memread = " & to_string(input.op.memread)
+		& " op.memwrite = " & to_string(input.op.memwrite)
+		& " op.memtype = " & to_string(input.op.memtype)
+		& " A = " & to_hstring(input.A)
+		& " W = " & to_hstring(input.W)
+		& " D.busy = " & to_string(input.D.busy)
+		& " D.rddata = " & to_hstring(input.D.rddata)
+		& lf
+		& "** expected: R = " & to_hstring(output_ref.R)
+		& " B = " & to_string(output_ref.B)
+		& " XL = " & to_string(output_ref.XL)
+		& " XS = " & to_string(output_ref.XS)
+		& " M.adress = " & to_hstring(output_ref.M.address)
+		& " M.rd = " & to_string(output_ref.M.rd)
+		& " M.wr = " & to_string(output_ref.M.wr)
+		& " M.byteena = " & to_string(output_ref.M.byteena)
+		& " M.wrdata = " & to_hstring(output_ref.M.wrdata)
+		& lf
+		& "** actual:   R = " & to_hstring(output.R)
+		& " B = " & to_string(output.B)
+		& " XL = " & to_string(output.XL)
+		& " XS = " & to_string(output.XS)
+		& " M.adress = " & to_hstring(output.M.address)
+		& " M.rd = " & to_string(output.M.rd)
+		& " M.wr = " & to_string(output.M.wr)
+		& " M.byteena = " & to_string(output.M.byteena)
+		& " M.wrdata = " & to_hstring(output.M.wrdata)
+		& lf
 			severity error;
 		end if;
 	end procedure;
+
 begin
+
+	memu_inst : entity work.memu
+	port map(
+		op => input.op,
+		A  => input.A,
+		W  => input.W,
+		R  => output.R, 
+		B  => output.B, 
+		XL => output.XL, 
+		XS => output.XS,
+		D  => input.D, 
+		M  => output.M
+	);
 
 	stimulus : process
 		variable input_fstatus : file_open_status;
