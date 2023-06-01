@@ -1,0 +1,47 @@
+#stall
+#flush
+#pcsrc
+#pc_in
+#memin.busy
+#memin.rddata
+
+#pcsrc = 0
+0
+0
+0
+0000
+11223344
+
+0
+0
+0
+1111
+55667788
+
+#flush = 1
+0
+1
+0
+1234
+33333333
+
+#pcsrc = 1 
+0
+0
+1
+0010
+12345678
+
+#stall = 1 pcsrc = 1 
+1
+0
+1
+0008
+33333333
+
+#stall = 1 pcsrc = 1 flush = 1
+1
+1
+1
+0008
+33333333
