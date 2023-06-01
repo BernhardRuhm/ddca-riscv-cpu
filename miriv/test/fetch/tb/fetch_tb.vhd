@@ -49,17 +49,14 @@ architecture tb of fetch_tb is
 		MEM_IN_NOP
 	);
 
-	signal output : output_t := (
-		'0',
-		16x"0",
-		32x"0",
-		MEM_OUT_NOP
-	);
+	signal output : output_t;
 
 	impure function read_next_input(file f : text) return input_t is
 		variable l : line;
 		variable result : input_t;
 	begin
+		result.mem_in.busy := '0';
+
 		l := get_next_valid_line(f);
 		result.stall := str_to_sl(l(1));
 
@@ -84,6 +81,7 @@ architecture tb of fetch_tb is
 
 		result.mem_out := MEM_OUT_NOP;
 		result.mem_out.rd := '1';
+		result.mem_busy := '0';
 
 		l := get_next_valid_line(f);
 		result.pc_out := hex_to_slv(l.all, PC_WIDTH);
