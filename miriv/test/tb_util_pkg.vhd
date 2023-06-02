@@ -47,7 +47,7 @@ package tb_util_pkg is
 	function rm_comment(str : string) return string;
 
 	-- Converts a string to branch_type
-	function str_to_branch(str : string) return string;
+	function str_to_branch(str : string) return branch_typ;
 end package;
 
 package body tb_util_pkg is
