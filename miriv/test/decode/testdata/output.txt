@@ -1,31 +1,41 @@
-#pc_out
-#instr
-#memout.adress
+# pc_out				4 hex 
+# exec_op.aluop			string
+# exec_op.alusrc1		1 bin
+# exec_op.alusrc2		1 bin
+# exec_op.alusrc3		1 bin 
+# exec_op.rs1			5 bin
+# exec_op.rs2			5 bin
+# exec_op.readdata1		8 hex
+# exec_op.readdata2		8 hex
+# exec_op.imm			8 hex
+# mem_op.branch 		string
+# mem_op.mem.mem_read 	1 bin
+# mem_op.mem.mem_write 	1 bin
+# mem_op.mem.memtype 	string
+# wb_op.rd 				5 bin
+# wb_op.write 			1 bin
+# wb_op.src 			string
+# exec_dec 				1 bin
 
+
+#### R-type instructions ###
+
+# ADD
 0000
-44332211
-00000000000001
-
-0004
-88776655
-00000000000010
-
-#flush = 1 
-0008
-00000013
-00000000000011
-
-#pcsrc = 1
-0010
-78563412
-00000000000100
-
-#stall = 1 pcsrc = 1
-0010
-33333333
-00000000000100
-
-#stall = 1 pcsrc = 1 flush = 1
-0010
-00000013
-00000000000100
+ALU_ADD
+0
+0
+0
+00001
+00010
+00000001
+00000002
+00000000
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+ALU_SRC
+0

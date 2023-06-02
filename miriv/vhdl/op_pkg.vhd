@@ -109,4 +109,26 @@ package op_pkg is
 		data     : data_type;
 	end record;
 
+	constant REG_WRITE_NOP : reg_write_type := (
+		'0', 			 -- write 
+		ZERO_REG, 		 -- reg
+		(others => '0')  -- data
+	);
+
+	constant OPCODE_WIDTH : natural := 7;
+	constant FUNCT3_WIDTH : natural := 3;
+	constant FUNCT7_WIDTH : natural := 7;
+
+	subtype opcode_type is std_logic_vector(OPCODE_WIDTH-1 downto 0);
+
+	constant OPC_LOAD 	: opcode_type := "0000011";
+	constant OPC_STORE 	: opcode_type := "0100011"; 
+	constant OPC_BRANCH : opcode_type := "1100011";
+	constant OPC_JALR 	: opcode_type := "1100111";
+	constant OPC_JAL 	: opcode_type := "1101111";
+	constant OPC_OP_IMM : opcode_type := "0010011";
+	constant OPC_OP 	: opcode_type := "0110011";
+	constant OPC_AUIPC 	: opcode_type := "0010111";
+	constant OPC_LUI 	: opcode_type := "0110111";
+
 end package;

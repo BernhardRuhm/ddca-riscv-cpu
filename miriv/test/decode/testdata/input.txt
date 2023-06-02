@@ -1,47 +1,18 @@
-#stall
-#flush
-#pcsrc
-#pc_in
-#memin.busy
-#memin.rddata
+# stall
+# flush
+# pc_in  				4 hex
+# instr 				8 hex
+# regwrite.write
+# regwrite.reg 			5 bin
+# regwrite.data 		8 hex
 
-#pcsrc = 0
-0
+#### R-type instructions ###
+
+# ADD
 0
 0
 0000
-11223344
-
+002081b3
 0
-0
-0
-1111
-55667788
-
-#flush = 1
-0
-1
-0
-1234
-33333333
-
-#pcsrc = 1 
-0
-0
-1
-0010
-12345678
-
-#stall = 1 pcsrc = 1 
-1
-0
-1
-0008
-33333333
-
-#stall = 1 pcsrc = 1 flush = 1
-1
-1
-1
-0008
-33333333
+00011
+00000000
