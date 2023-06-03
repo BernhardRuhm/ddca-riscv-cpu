@@ -38,6 +38,7 @@ architecture tb of decode_tb is
 	signal clk : std_logic;
 	signal res_n : std_logic := '0';
 	signal stop : boolean := false;
+	signal finished_writing : boolean := false;
 
 	file input_file : text;
 	file output_file : text;
@@ -250,6 +251,8 @@ begin
 		input.reg_write <= ('1', "00010", x"00000002");
 		timeout(1, CLK_PERIOD);
 
+		finished_writing <= true;
+
 		file_open(input_fstatus, input_file, "testdata/input.txt", READ_MODE);
 
 		while not endfile(input_file) loop
@@ -268,7 +271,8 @@ begin
 		file_open(output_fstatus, output_file, "testdata/output.txt", READ_MODE);
 
 		wait until res_n = '1';
-		timeout(3, CLK_PERIOD);
+		wait until finished_writing =  true;
+		timeout(1, CLK_PERIOD);
 
 		while not endfile(output_file) loop
 			output_ref := read_next_output(output_file);	
@@ -276,7 +280,6 @@ begin
 			check_output(output_ref);
 			wait until rising_edge(clk); 
 		end loop;
-		--timeout(1, CLK_PERIOD);
 		stop <= true;
 		wait;
 	end process;
