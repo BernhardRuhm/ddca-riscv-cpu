@@ -35,7 +35,6 @@ architecture rtl of decode is
 	signal pc_reg, pc_reg_next : pc_type;
 	signal instr_reg, instr_reg_next : instr_type;
 
-	signal rdaddr1, rdaddr2 : reg_adr_type;
 	signal rddata1, rddata2 : data_type;
 
 	function generate_immediate(opcode : opcode_type; instr : instr_type) return data_type is
@@ -82,7 +81,33 @@ architecture rtl of decode is
 		return imm;
 	end function;
 
-
+	function get_alu_op(funct3 : std_logic_vector(FUNCT3_WIDTH-1 downto 0);
+					    funct7 : std_logic_vector(FUNCT7_WIDTH-1 downto 0)) return alu_op_type is
+		variable aluop : alu_op_type;
+	begin 
+		case funct3 is
+			when "000" 	=>
+				if funct7 = "0000000" then
+					aluop := ALU_ADD;
+				else 
+					aluop := ALU_SUB;
+				end if;
+			when "001" 	=> aluop := ALU_SLL; 
+			when "010" 	=> aluop := ALU_SLT;
+			when "011" 	=> aluop := ALU_SLTU;
+			when "100" 	=> aluop := ALU_XOR;
+			when "101" 	=> 
+				if funct7 = "0000000" then
+					aluop := ALU_SRL;
+				else 
+					aluop := ALU_SRA;
+				end if;
+			when "110" 	=> aluop := ALU_OR;
+			when "111" 	=> aluop := ALU_AND;
+			when others => aluop := ALU_NOP;
+		end case;
+		return aluop;
+	end function;
 
 begin
 
@@ -91,15 +116,14 @@ begin
 		clk       => clk,
 		res_n     => res_n,
 		stall     => stall,
-		rdaddr1   => rdaddr1,
-		rdaddr2   => rdaddr2,
+		rdaddr1   => instr(19 downto 15), -- write rs1 directly, otherwise regfile is delayed by 1 cycle
+		rdaddr2   => instr(24 downto 20), -- write rs2 directly, otherwise regfile is delayed by 1 cycle
 		rddata1   => rddata1,
 		rddata2   => rddata2,
 		wraddr    => reg_write.reg,
 		wrdata    => reg_write.data,
 		regwrite  => reg_write.write
 	);
-
 
 	sync : process(clk, res_n)
 	begin
@@ -123,35 +147,124 @@ begin
 
 		procedure decode_R_type_instr is 
 		begin
-
 		-- set exec_op.aluop
-			case funct3 is
-				when "000" 	=>
-					if funct7 = "0000000" then
-						exec_op.aluop <= ALU_ADD;
-					else 
-						exec_op.aluop <= ALU_SUB;
-					end if;
-				when "001" 	=> exec_op.aluop <= ALU_SLL; 
-				when "010" 	=> exec_op.aluop <= ALU_SLT;
-				when "011" 	=> exec_op.aluop <= ALU_SLTU;
-				when "100" 	=> exec_op.aluop <= ALU_XOR;
-				when "101" 	=> 
-					if funct7 = "0000000" then
-						exec_op.aluop <= ALU_SRL;
-					else 
-						exec_op.aluop <= ALU_SRA;
-					end if;
-				when "110" 	=> exec_op.aluop <= ALU_OR;
-				when "111" 	=> exec_op.aluop <= ALU_AND;
-				when others => exec_op.aluop <= ALU_NOP;
-			end case;
-
+			exec_op.aluop <= get_alu_op(funct3, funct7);
 		-- set alusrc
 			alu_src := "000";
-
 		-- set wb_op
 			wb_op <= (rd => rd, write => '1', src => WBS_ALU);
+		end procedure;
+
+		procedure decode_imm_instr is 
+		begin
+
+		-- set exec_op.aluop
+			exec_op.aluop <= get_alu_op(funct3, funct7);
+		-- set alusrc
+			alu_src := "001";
+		-- set wb_op
+			wb_op <= (rd => rd, write => '1', src => WBS_ALU);
+		end procedure;
+		
+		procedure decode_load_instr is 
+		begin
+
+		-- set exec_op.aluop
+		exec_op.aluop <= ALU_ADD;
+
+		-- set mem_op.mem_type	
+			case funct3 is
+				when "000" 	=> mem_op.mem.memtype <= MEM_B;
+				when "001" 	=> mem_op.mem.memtype <= MEM_H;
+				when "010"  => mem_op.mem.memtype <= MEM_W;
+				when "100" 	=> mem_op.mem.memtype <= MEM_HU;
+				when "101" 	=> mem_op.mem.memtype <= MEM_BU;
+				when others => exc_dec <= '1';
+			end case;
+
+		-- set mem_op.memread
+			mem_op.mem.memread <= '1';
+		-- set wb_op
+			wb_op <= (rd => rd, write => '1', src => WBS_MEM);
+		-- set alusrc
+			alu_src := "010";
+		end procedure;
+
+		procedure decode_jalr_instr is
+		begin 
+
+		-- set exec_op.aluop
+			exec_op.aluop <= ALU_ADD;
+		 
+			mem_op.branch <= BR_BR;
+
+			wb_op <=(rd => rd, write => '1', src => WBS_OPC);
+
+		-- set alusrc
+			alu_src := "011";
+		end procedure;
+
+		procedure decode_S_type_instr is 
+		begin
+
+			case funct3 is
+				when "000" 	=> mem_op.mem.memtype <= MEM_B;
+				when "001" 	=> mem_op.mem.memtype <= MEM_H;
+				when "010"  => mem_op.mem.memtype <= MEM_W;
+				when others => exc_dec <= '1';
+			end case;
+
+			mem_op.mem.memwrite <= '1';
+			exec_op.aluop <= ALU_ADD;
+			alu_src := "001";
+		end procedure;
+
+		procedure decode_B_type_instr is
+		begin
+			case funct3 is
+				when "000"  => 
+					exec_op.aluop <= ALU_SUB;
+					mem_op.branch <= BR_CND;
+				when "001"  => 
+					exec_op.aluop <= ALU_SUB; 
+					mem_op.branch <= BR_CNDI;
+				when "100"  => 
+					exec_op.aluop <= ALU_SLT;
+					mem_op.branch <= BR_CND;
+				when "101"  => 
+					exec_op.aluop <= ALU_SLT;
+					mem_op.branch <= BR_CNDI;
+				when "110"  => 
+					exec_op.aluop <= ALU_SLTU;
+					mem_op.branch <= BR_CND;
+				when "111"  => 
+					exec_op.aluop <= ALU_SLTU;
+					mem_op.branch <= BR_CNDI;
+				when others => exc_dec <= '1';
+			end case;
+
+			alu_src := "101";
+		end procedure;
+
+		procedure decode_J_type_instr is
+		begin
+			exec_op.aluop <= ALU_ADD;
+			mem_op.branch <= BR_BR;
+			wb_op <=(rd => rd, write => '1', src => WBS_OPC);
+			alu_src := "110";
+		end procedure;
+
+		procedure decode_lui_instr is 
+		begin
+			alu_src := "100";
+			wb_op <=(rd => rd, write => '1', src => WBS_ALU);
+		end procedure;
+
+		procedure decode_auipc_instr is 
+		begin
+			exec_op.aluop <= ALU_ADD;
+			alu_src := "111";
+			wb_op <=(rd => rd, write => '1', src => WBS_ALU);
 		end procedure;
 
 	begin
@@ -182,10 +295,6 @@ begin
 
 		exec_op.imm <= generate_immediate(opcode, instr); -- directly connected to exec_op
 
-		rdaddr1 <= rs1;
-
-		rdaddr2 <= rs2;
-
 	--default outputs
 		exec_op <= EXEC_NOP;
 		mem_op  <= MEM_NOP;
@@ -201,8 +310,10 @@ begin
 		exc_dec <= '0';
 
 		case opcode is
-			when OPC_OP => 
-				decode_R_type_instr;
+			when OPC_OP 	=> decode_R_type_instr;
+			when OPC_OP_IMM => decode_imm_instr;
+			when OPC_LOAD   => decode_load_instr;
+			when OPC_JALR   => decode_jalr_instr;
 			when others => exc_dec <= '0';
 		end case;
 		

@@ -272,7 +272,6 @@ begin
 
 		wait until res_n = '1';
 		wait until finished_writing =  true;
-		timeout(1, CLK_PERIOD);
 
 		while not endfile(output_file) loop
 			output_ref := read_next_output(output_file);	
