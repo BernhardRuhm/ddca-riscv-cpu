@@ -147,6 +147,8 @@ begin
 
 		procedure decode_R_type_instr is 
 		begin
+
+			exec_op.readdata2 <= rddata2;
 		-- set exec_op.aluop
 			exec_op.aluop <= get_alu_op(funct3, funct7);
 		-- set alusrc
@@ -177,8 +179,8 @@ begin
 				when "000" 	=> mem_op.mem.memtype <= MEM_B;
 				when "001" 	=> mem_op.mem.memtype <= MEM_H;
 				when "010"  => mem_op.mem.memtype <= MEM_W;
-				when "100" 	=> mem_op.mem.memtype <= MEM_HU;
-				when "101" 	=> mem_op.mem.memtype <= MEM_BU;
+				when "100" 	=> mem_op.mem.memtype <= MEM_BU;
+				when "101" 	=> mem_op.mem.memtype <= MEM_HU;
 				when others => exc_dec <= '1';
 			end case;
 
@@ -187,7 +189,7 @@ begin
 		-- set wb_op
 			wb_op <= (rd => rd, write => '1', src => WBS_MEM);
 		-- set alusrc
-			alu_src := "010";
+			alu_src := "001";
 		end procedure;
 
 		procedure decode_jalr_instr is
@@ -214,6 +216,7 @@ begin
 				when others => exc_dec <= '1';
 			end case;
 
+			exec_op.readdata2 <= rddata2;
 			mem_op.mem.memwrite <= '1';
 			exec_op.aluop <= ALU_ADD;
 			alu_src := "001";
@@ -230,20 +233,21 @@ begin
 					mem_op.branch <= BR_CNDI;
 				when "100"  => 
 					exec_op.aluop <= ALU_SLT;
-					mem_op.branch <= BR_CND;
+					mem_op.branch <= BR_CNDI;
 				when "101"  => 
 					exec_op.aluop <= ALU_SLT;
-					mem_op.branch <= BR_CNDI;
+					mem_op.branch <= BR_CND;
 				when "110"  => 
 					exec_op.aluop <= ALU_SLTU;
-					mem_op.branch <= BR_CND;
+					mem_op.branch <= BR_CNDI;
 				when "111"  => 
 					exec_op.aluop <= ALU_SLTU;
-					mem_op.branch <= BR_CNDI;
+					mem_op.branch <= BR_CND;
 				when others => exc_dec <= '1';
 			end case;
 
-			alu_src := "101";
+			exec_op.readdata2 <= rddata2;
+			alu_src := "010";
 		end procedure;
 
 		procedure decode_J_type_instr is
@@ -251,19 +255,21 @@ begin
 			exec_op.aluop <= ALU_ADD;
 			mem_op.branch <= BR_BR;
 			wb_op <=(rd => rd, write => '1', src => WBS_OPC);
-			alu_src := "110";
+			alu_src := "100";
 		end procedure;
 
 		procedure decode_lui_instr is 
 		begin
-			alu_src := "100";
+			exec_op.readdata1 <= (others => '0');
+			alu_src := "110";
 			wb_op <=(rd => rd, write => '1', src => WBS_ALU);
 		end procedure;
 
 		procedure decode_auipc_instr is 
 		begin
+			exec_op.readdata1 <= (others => '0');
 			exec_op.aluop <= ALU_ADD;
-			alu_src := "111";
+			alu_src := "101";
 			wb_op <=(rd => rd, write => '1', src => WBS_ALU);
 		end procedure;
 
@@ -293,17 +299,17 @@ begin
 		rs2 	:= instr(24 downto 20);
 		funct7  := instr(31 downto 25);
 
-		exec_op.imm <= generate_immediate(opcode, instr); -- directly connected to exec_op
-
-	--default outputs
 		exec_op <= EXEC_NOP;
 		mem_op  <= MEM_NOP;
 		wb_op   <= WB_NOP;
 
+	--default outputs
+
 		exec_op.rs1 <= rs1; -- R-type
 		exec_op.rs2 <= rs2; -- R-type
 		exec_op.readdata1 <= rddata1;
-		exec_op.readdata2 <= rddata2;
+		exec_op.readdata2 <= (others => '0');
+		exec_op.imm <= generate_immediate(opcode, instr); -- directly connected to exec_op
 
 		pc_out <= pc_reg;
 		
@@ -314,12 +320,17 @@ begin
 			when OPC_OP_IMM => decode_imm_instr;
 			when OPC_LOAD   => decode_load_instr;
 			when OPC_JALR   => decode_jalr_instr;
-			when others => exc_dec <= '0';
+			when OPC_STORE  => decode_S_type_instr;
+			when OPC_BRANCH => decode_B_type_instr;
+			when OPC_JAL 	=> decode_J_type_instr;
+			when OPC_LUI 	=> decode_lui_instr;
+			when OPC_AUIPC 	=> decode_auipc_instr;
+			when others 	=> exc_dec <= '1';
 		end case;
 		
 		exec_op.alusrc1 <= alu_src(0);	
 		exec_op.alusrc2 <= alu_src(1);	
-		exec_op.alusrc2 <= alu_src(2);	
+		exec_op.alusrc3 <= alu_src(2);	
 
 	end process;
 end architecture;
