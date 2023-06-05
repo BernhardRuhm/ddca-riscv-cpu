@@ -65,7 +65,6 @@ architecture rtl of mem is
 
 begin
 
-	--memu unit instantiaion
 	memu_isnt : entity work.memu
 	port map (
 		op => curr.mem_op.mem,
@@ -79,7 +78,6 @@ begin
 		M => mem_out
 	);
 
-	--branch decision
 	pcsrc <= '1' when 	(curr.mem_op.branch = BR_BR 
 					or 	(curr.mem_op.branch = BR_CND and curr.zero = '1')	
 					or (curr.mem_op.branch = BR_CNDI and curr.zero = '0')) 
