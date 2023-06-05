@@ -153,13 +153,8 @@ begin
 
 		procedure decode_R_type_instr is 
 		begin
-			--exec_op.rs2 <= rs2;
-			--exec_op.readdata2 <= rddata2;
-		-- set exec_op.aluop
 			exec_op.aluop <= get_alu_op(funct3, funct7);
-		-- set alusrc
 			alu_src := "000";
-		-- set wb_op
 			wb_op <= (rd => rd, write => '1', src => WBS_ALU);
 		end procedure;
 
@@ -168,23 +163,14 @@ begin
 		
 			exec_op.rs2 <= ZERO_REG;
 			exec_op.readdata2 <= ZERO_DATA;
-		-- set exec_op.aluop
 			exec_op.aluop <= get_alu_op(funct3, funct7);
-		-- set alusrc
 			alu_src := "001";
-		-- set wb_op
 			wb_op <= (rd => rd, write => '1', src => WBS_ALU);
 		end procedure;
 		
 		procedure decode_load_instr is 
 		begin
 
-			exec_op.rs2 <= ZERO_REG;
-			exec_op.readdata2 <= ZERO_DATA;
-		-- set exec_op.aluop
-			exec_op.aluop <= ALU_ADD;
-
-		-- set mem_op.mem_type	
 			case funct3 is
 				when "000" 	=> mem_op.mem.memtype <= MEM_B;
 				when "001" 	=> mem_op.mem.memtype <= MEM_H;
@@ -194,11 +180,11 @@ begin
 				when others => exc_dec <= '1';
 			end case;
 
-		-- set mem_op.memread
+			exec_op.rs2 <= ZERO_REG;
+			exec_op.readdata2 <= ZERO_DATA;
+			exec_op.aluop <= ALU_ADD;
 			mem_op.mem.memread <= '1';
-		-- set wb_op
 			wb_op <= (rd => rd, write => '1', src => WBS_MEM);
-		-- set alusrc
 			alu_src := "001";
 		end procedure;
 
@@ -207,12 +193,8 @@ begin
 
 			exec_op.rs2 <= ZERO_REG;
 			exec_op.readdata2 <= ZERO_DATA;
-		 
 			mem_op.branch <= BR_BR;
-
 			wb_op <=(rd => rd, write => '1', src => WBS_OPC);
-
-		-- set alusrc
 			alu_src := "011";
 		end procedure;
 
@@ -292,6 +274,16 @@ begin
 			wb_op <=(rd => rd, write => '1', src => WBS_ALU);
 		end procedure;
 
+		procedure decode_nop is
+		begin
+
+			exec_op.rs1 <= ZERO_REG;
+			exec_op.rs2 <= ZERO_REG;
+			exec_op.readdata2 <= ZERO_DATA;
+			exec_op.readdata1 <= ZERO_DATA;
+			alu_src := "000";
+		end procedure;
+
 	begin
 
 	-- register pc and instr according to flush and stall
@@ -331,6 +323,12 @@ begin
 			when OPC_JAL 	=> decode_J_type_instr;
 			when OPC_LUI 	=> decode_lui_instr;
 			when OPC_AUIPC 	=> decode_auipc_instr;
+			when OPC_NOP 	=> 
+				if (funct3 = "000") then
+					decode_nop;
+				else 
+					exc_dec <= '1';
+				end if;
 			when others 	=> exc_dec <= '1';
 		end case;
 		

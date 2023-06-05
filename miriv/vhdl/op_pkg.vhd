@@ -130,5 +130,6 @@ package op_pkg is
 	constant OPC_OP 	: opcode_type := "0110011";
 	constant OPC_AUIPC 	: opcode_type := "0010111";
 	constant OPC_LUI 	: opcode_type := "0110111";
+	constant OPC_NOP 	: opcode_type := "0001111";
 
 end package;

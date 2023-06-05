@@ -171,3 +171,48 @@ MEM_W
 00011
 1
 WBS_ALU
+
+#### I-type instructions ####
+# ADDI
+0000
+0000
+0000000c
+00000000
+-
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+# SLTI
+0004
+0004
+00000001
+00000000
+0
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+
+#### B-type instructions ####
+# BNE
+0004
+000C
+FFFFFFFF
+00000000
+0
+BR_CNDI
+0
+0
+MEM_W
+00000
+0
+WBS_ALU
