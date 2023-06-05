@@ -51,6 +51,7 @@ end entity;
 architecture rtl of mem is
 
 	type mem_reg_t is
+		record
 		mem_op : mem_op_type;
 		wbop  : wb_op_type;
 		pc_new : pc_type;
@@ -69,7 +70,7 @@ begin
 	port map (
 		op => curr.mem_op.mem,
 		A => curr.aluresult,
-		B => curr.wrdata,
+		W => curr.wrdata,
 		R => memresult,
 		B => mem_busy,
 		XL => exc_load,
@@ -79,13 +80,12 @@ begin
 	);
 
 	--branch decision
-	if (curr.mem_op.branch = BR_BR or (curr.mem_op.branch = BR_CND and curr.zero = '1') or (curr.mem_op.branch = BR_CNDI and curr.zero = '0')) then
-		pcsrc <= '1';
-	else
-		pcsrc <= '0';
-	end if;
+	pcsrc <= '1' when 	(curr.mem_op.branch = BR_BR 
+					or 	(curr.mem_op.branch = BR_CND and curr.zero = '1')	
+					or (curr.mem_op.branch = BR_CNDI and curr.zero = '0')) 
+				else	'0';
 
-	sync : proccess (clk, res_n)
+	sync : process (clk, res_n)
 	begin
 		if (res_n = '0') then
 			curr <= (
@@ -94,7 +94,7 @@ begin
 				pc_new => ZERO_PC,
 				pc_old => ZERO_PC,
 				zero => '0',
-				(others => '0')
+				others => (others => '0')
 			);
 		elsif (rising_edge(clk)) then
 			curr <= nxt;
@@ -104,12 +104,6 @@ begin
 	memory : process (all)
 	begin
 
-		if (stall = '1') then
-			nxt <= curr;
-			nxt.mem_op.mem.memread <= '0';
-			nxt.mem_op.mem.memwrite <= '0';
-		end if;
-
 		if (flush = '1') then
 			nxt <= (
 				mem_op => MEM_NOP,
@@ -117,7 +111,7 @@ begin
 				pc_new => ZERO_PC,
 				pc_old => ZERO_PC,
 				zero => '0',
-				(others => '0')
+				others => (others => '0')
 			);
 		else 
 			nxt <= (
@@ -130,7 +124,12 @@ begin
 				zero => zero
 			);
 		end if;
-			
+
+		if (stall = '1') then
+			nxt <= curr;
+			nxt.mem_op.mem.memread <= '0';
+			nxt.mem_op.mem.memwrite <= '0';
+		end if;
 
 
 		reg_write.write <= curr.wbop.write;
@@ -149,7 +148,7 @@ begin
 		pc_old_out <= curr.pc_old;
 		pc_new_out <= curr.pc_new;
 		aluresult_out <= curr.aluresult;
-	
+	end process;
 
 
 
