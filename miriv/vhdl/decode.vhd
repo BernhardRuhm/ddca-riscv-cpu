@@ -153,7 +153,7 @@ begin
 
 		procedure decode_R_type_instr is 
 		begin
-
+			exec_op.rs2 <= rs2;
 			exec_op.readdata2 <= rddata2;
 		-- set exec_op.aluop
 			exec_op.aluop <= get_alu_op(funct3, funct7);
@@ -298,8 +298,8 @@ begin
 
 	--default outputs
 
-		exec_op.rs1 <= rs1; -- R-type
-		exec_op.rs2 <= rs2; -- R-type
+		exec_op.rs1 <= rs1;  
+		exec_op.rs2 <= ZERO_REG;  
 		exec_op.readdata1 <= rddata1;
 		exec_op.readdata2 <= (others => '0');
 		exec_op.imm <= generate_immediate(opcode, instr); -- directly connected to exec_op
