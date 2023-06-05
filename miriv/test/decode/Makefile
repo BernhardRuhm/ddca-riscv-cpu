@@ -15,4 +15,4 @@ sim:
 	@vsim -c -t ps work.decode_tb -quiet -do "run -all;quit -f" | grep -E "\*\*|Errors"
 
 sim_gui:
-	@vsim -t ps -voptargs=+acc work.decode_tb -quiet -do "do scripts/wave.do;run -all;wave zoom full"
+	@vsim -t ps  work.decode_tb -quiet -do "do scripts/wave.do;run -all;wave zoom full"

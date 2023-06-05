@@ -153,8 +153,8 @@ begin
 
 		procedure decode_R_type_instr is 
 		begin
-			exec_op.rs2 <= rs2;
-			exec_op.readdata2 <= rddata2;
+			--exec_op.rs2 <= rs2;
+			--exec_op.readdata2 <= rddata2;
 		-- set exec_op.aluop
 			exec_op.aluop <= get_alu_op(funct3, funct7);
 		-- set alusrc
@@ -165,7 +165,9 @@ begin
 
 		procedure decode_imm_instr is 
 		begin
-
+		
+			exec_op.rs2 <= ZERO_REG;
+			exec_op.readdata2 <= ZERO_DATA;
 		-- set exec_op.aluop
 			exec_op.aluop <= get_alu_op(funct3, funct7);
 		-- set alusrc
@@ -177,8 +179,10 @@ begin
 		procedure decode_load_instr is 
 		begin
 
+			exec_op.rs2 <= ZERO_REG;
+			exec_op.readdata2 <= ZERO_DATA;
 		-- set exec_op.aluop
-		exec_op.aluop <= ALU_ADD;
+			exec_op.aluop <= ALU_ADD;
 
 		-- set mem_op.mem_type	
 			case funct3 is
@@ -201,8 +205,8 @@ begin
 		procedure decode_jalr_instr is
 		begin 
 
-		-- set exec_op.aluop
-			exec_op.aluop <= ALU_ADD;
+			exec_op.rs2 <= ZERO_REG;
+			exec_op.readdata2 <= ZERO_DATA;
 		 
 			mem_op.branch <= BR_BR;
 
@@ -222,7 +226,6 @@ begin
 				when others => exc_dec <= '1';
 			end case;
 
-			exec_op.readdata2 <= rddata2;
 			mem_op.mem.memwrite <= '1';
 			exec_op.aluop <= ALU_ADD;
 			alu_src := "001";
@@ -252,13 +255,16 @@ begin
 				when others => exc_dec <= '1';
 			end case;
 
-			exec_op.readdata2 <= rddata2;
 			alu_src := "010";
 		end procedure;
 
 		procedure decode_J_type_instr is
 		begin
-			exec_op.aluop <= ALU_ADD;
+
+			exec_op.rs1 <= ZERO_REG;
+			exec_op.rs2 <= ZERO_REG;
+			exec_op.readdata1 <= ZERO_DATA;
+			exec_op.readdata2 <= ZERO_DATA;
 			mem_op.branch <= BR_BR;
 			wb_op <=(rd => rd, write => '1', src => WBS_OPC);
 			alu_src := "100";
@@ -266,15 +272,22 @@ begin
 
 		procedure decode_lui_instr is 
 		begin
-			exec_op.readdata1 <= (others => '0');
+
+			exec_op.rs1 <= ZERO_REG;
+			exec_op.rs2 <= ZERO_REG;
+			exec_op.readdata2 <= ZERO_DATA;
+			exec_op.readdata1 <= ZERO_DATA;
 			alu_src := "110";
 			wb_op <=(rd => rd, write => '1', src => WBS_ALU);
 		end procedure;
 
 		procedure decode_auipc_instr is 
 		begin
-			exec_op.readdata1 <= (others => '0');
-			exec_op.aluop <= ALU_ADD;
+
+			exec_op.rs1 <= ZERO_REG;
+			exec_op.rs2 <= ZERO_REG;
+			exec_op.readdata2 <= ZERO_DATA;
+			exec_op.readdata1 <= ZERO_DATA;
 			alu_src := "101";
 			wb_op <=(rd => rd, write => '1', src => WBS_ALU);
 		end procedure;
@@ -299,9 +312,9 @@ begin
 	--default outputs
 
 		exec_op.rs1 <= rs1;  
-		exec_op.rs2 <= ZERO_REG;  
+		exec_op.rs2 <= rs2;  
 		exec_op.readdata1 <= rddata1;
-		exec_op.readdata2 <= (others => '0');
+		exec_op.readdata2 <= rddata2;
 		exec_op.imm <= generate_immediate(opcode, instr); -- directly connected to exec_op
 
 		pc_out <= pc_reg;
