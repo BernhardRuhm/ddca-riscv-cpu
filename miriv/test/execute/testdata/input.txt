@@ -1,0 +1,240 @@
+# stall
+# flush
+# op.aluop					string
+# op.alusrc1				1 bin
+# op.alusrc2				1 bin
+# op.alusrc3				1 bin 
+# op.rs1					5 bin
+# op.rs2					5 bin
+# op.readdata1				8 hex
+# op.readdata2				8 hex
+# op.imm					8 hex
+# pc_in						4 hex
+# memop_in.branch 			string
+# memop_in.mem.mem_read 	1 bin
+# memop_in.mem.mem_write 	1 bin
+# memop_in.mem.memtype 		string
+# wbop_in.rd 				5 bin
+# wbop_in.write 			1 bin
+# wbop_in.src 				string
+
+
+#### R-type instructions ###
+#ADD 
+0
+0
+ALU_ADD
+0
+0
+0
+00001
+00010
+00000001
+00000002
+00000000
+0000
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+# SUB
+0 
+0 
+ALU_SUB
+0
+0
+0
+00010
+00001
+00000002
+00000001
+00000000
+0004
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+# SLL
+0
+0
+ALU_SLL
+0
+0
+0
+00010
+00001
+00000002
+00000001
+00000000
+0004
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+
+# SLT 
+0
+0
+ALU_SLT
+0
+0
+0
+00010
+00001
+00000002
+00000001
+00000000
+0004
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+
+
+# SLU 
+0
+0
+ALU_SLTU
+0
+0
+0
+00010
+00001
+00000002
+00000001
+00000000
+0004
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+
+
+# XOR 
+0
+0
+ALU_XOR
+0
+0
+0
+00010
+00001
+00000002
+00000001
+00000000
+0004
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+
+# SRL 
+0
+0
+ALU_SRL
+0
+0
+0
+00010
+00001
+00000002
+00000001
+00000000
+0004
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+
+# SR 
+0
+0
+ALU_SRA
+0
+0
+0
+00010
+00001
+00000002
+00000001
+00000000
+0004
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+
+# OR 
+0
+0
+ALU_OR
+0
+0
+0
+00010
+00001
+00000002
+00000001
+00000000
+0004
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+
+# AND
+0
+0
+ALU_AND
+0
+0
+0
+00010
+00001
+00000002
+00000001
+00000000
+0004
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU

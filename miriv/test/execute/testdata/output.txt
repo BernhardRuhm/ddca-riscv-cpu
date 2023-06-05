@@ -1,0 +1,173 @@
+# pc_old_out				4 hex 
+# pc_new_out				4 hex 
+# aluresult					8 hex
+# wrdata					8 hex
+# zero						1 bin
+# memop_out.branch 			string
+# memop_out.mem.mem_read 	1 bin
+# memop_out.mem.mem_write 	1 bin
+# memop_out.mem.memtype 	string
+# wbop_out.rd 				5 bin
+# wbop_out.write 			1 bin
+# wbop_out.src 				string
+# exec_op.aluop				string
+# exec_op.alusrc1			1 bin
+# exec_op.alusrc2			1 bin
+# exec_op.alusrc3			1 bin 
+# exec_op.rs1				5 bin
+# exec_op.rs2				5 bin
+# exec_op.readdata1			8 hex
+# exec_op.readdata2			8 hex
+# exec_op.imm				8 hex
+
+
+#### R-type instructions ###
+
+#ADD
+0000
+0000
+00000003
+00000000
+-
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+# SUB
+0004
+0004
+00000001
+00000000
+0
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+
+# SLL
+0004
+0004
+00000004
+00000000
+-
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+
+
+# SLT
+0004
+0004
+00000000
+00000000
+1
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+
+# SLTU
+0004
+0004
+00000000
+00000000
+1
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+
+# XOR 
+0004
+0004
+00000003
+00000000
+-
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+
+# SRL 
+0004
+0004
+00000001
+00000000
+-
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+
+# SRA 
+0004
+0004
+00000001
+00000000
+-
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+
+# OR 
+0004
+0004
+00000003
+00000000
+-
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU
+
+
+# AND 
+0004
+0004
+00000000
+00000000
+-
+BR_NOP
+0
+0
+MEM_W
+00011
+1
+WBS_ALU

@@ -32,8 +32,8 @@ end entity;
 
 architecture rtl of decode is
 
-	signal pc_reg, pc_reg_next : pc_type;
-	signal instr_reg, instr_reg_next : instr_type;
+	signal pc_reg : pc_type;
+	signal instr_reg : instr_type;
 
 	signal rddata1, rddata2 : data_type;
 
@@ -131,8 +131,14 @@ begin
 			pc_reg <= ZERO_PC;
 			instr_reg <= NOP_INST;
 		elsif (rising_edge(clk)) then
-			pc_reg <= pc_reg_next;
-			instr_reg <= instr_reg_next; 
+			if (stall = '0') then
+				pc_reg <= pc_in;
+				instr_reg <= instr;
+			end if;
+
+			if (flush = '1') then
+				instr_reg <= NOP_INST;
+			end if;
 		end if;
 	end process;
 
@@ -147,7 +153,7 @@ begin
 
 		procedure decode_R_type_instr is 
 		begin
-
+			exec_op.rs2 <= rs2;
 			exec_op.readdata2 <= rddata2;
 		-- set exec_op.aluop
 			exec_op.aluop <= get_alu_op(funct3, funct7);
@@ -277,19 +283,6 @@ begin
 
 	-- register pc and instr according to flush and stall
 
-		if (stall = '1') then
-			pc_reg_next <= pc_reg;
-			instr_reg_next <= instr_reg;
-		else 
-			pc_reg_next <= pc_in;
-			instr_reg_next <= instr;
-		end if;
-
-		if (flush = '1') then
-			instr_reg_next <= NOP_INST;
-		else
-			instr_reg_next <= instr;
-		end if;
 
 	-- extract operands from instruction
 		opcode 	:= instr(6 downto 0);	
@@ -305,8 +298,8 @@ begin
 
 	--default outputs
 
-		exec_op.rs1 <= rs1; -- R-type
-		exec_op.rs2 <= rs2; -- R-type
+		exec_op.rs1 <= rs1;  
+		exec_op.rs2 <= ZERO_REG;  
 		exec_op.readdata1 <= rddata1;
 		exec_op.readdata2 <= (others => '0');
 		exec_op.imm <= generate_immediate(opcode, instr); -- directly connected to exec_op
