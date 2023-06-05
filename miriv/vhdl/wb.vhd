@@ -36,7 +36,7 @@ architecture rtl of wb is
 
 begin
 
-	sync : process (clk)
+	sync : process (clk, res_n)
 	begin
 		if res_n = '0' then
 			curr <= (

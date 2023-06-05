@@ -40,7 +40,13 @@ begin
 		
 		mem_out <= MEM_OUT_NOP;
 		mem_out.rd <= '1';
-		mem_out.address <= pc_next(PC_WIDTH-1 downto 2) when stall = '0' else pc(PC_WIDTH-1 downto 2);
+
+		if (stall = '0') then
+			mem_out.address <= pc_next(PC_WIDTH-1 downto 2);
+		else 
+			mem_out.address <= pc(PC_WIDTH-1 downto 2);
+		end if;
+
 		mem_busy <= mem_in.busy;
 		pc_out <= pc;
 

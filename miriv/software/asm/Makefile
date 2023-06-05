@@ -1,4 +1,4 @@
-PREFIX=/opt/ddca/riscv/bin/riscv32-unknown-elf
+PREFIX=riscv32-unknown-elf
 
 CC=${PREFIX}-gcc
 AS=${PREFIX}-as

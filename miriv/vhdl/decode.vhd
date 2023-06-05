@@ -43,38 +43,19 @@ architecture rtl of decode is
 		case opcode is
 
 			when OPC_JALR | OPC_LOAD | OPC_OP_IMM => -- I-type
-				imm := (0 			=> instr(20), 
-						4 downto 1 	=> instr(24 downto 21), 
-						10 downto 5 => instr(30 downto 25),
-						others 		=> instr(31));
+				imm := (31 downto 11 => instr(31)) & instr(30 downto 25) & instr(24 downto 21) & instr(20);
 
 			when OPC_STORE =>  -- S-type 
-				imm := (0 			=> instr(7), 
-						4 downto 1 	=> instr(11 downto 8), 
-						10 downto 5 => instr(30 downto 25),
-						others 		=> instr(31));
+				imm := (31 downto 11 => instr(31)) & instr(30 downto 25) & instr(11 downto 8) & instr(7);
 
 			when OPC_BRANCH => -- B-type
-				imm := (0 			=> '0', 
-						4 downto 1 	=> instr(11 downto 8), 
-						10 downto 5 => instr(30 downto 25),
-						11 			=> instr(7),
-						others 		=> instr(31));
+				imm := (31 downto 12 => instr(31)) & instr(7) & instr(30 downto 25) & instr(11 downto 8) & '0'; 
 
 			when OPC_LUI | OPC_AUIPC => -- U-type
-				imm := (31 			 => instr(31), 
-						30 downto 20 => instr(30 downto 20), 
-						19 downto 12 => instr(19 downto 12),
-						others 		 => '0');
+				imm := instr(31) & instr(30 downto 20) & instr(19 downto 12) & (11 downto 0 => '0');
 
 			when OPC_JAL => 
-				imm := (0 		     => '0', 
-						4 downto 1 	 => instr(24 downto 21), 
-						10 downto 5  => instr(30 downto 25),
-						11 			 => instr(20), 
-						19 downto 12 => instr(19 downto 12),
-						others 		 => instr(31));
-
+				imm := (31 downto 20 => instr(31)) & instr(19 downto 12) & instr(20) & instr(30 downto 25) & instr(24 downto 21) & '0';
 			when others =>
 				imm := (others => '0');
 		end case;
@@ -286,28 +267,27 @@ begin
 
 	begin
 
-	-- register pc and instr according to flush and stall
 
 
 	-- extract operands from instruction
-		opcode 	:= instr(6 downto 0);	
-		rd 		:= instr(11 downto 7);
-		funct3  := instr(14 downto 12);
-		rs1 	:= instr(19 downto 15);
-		rs2 	:= instr(24 downto 20);
-		funct7  := instr(31 downto 25);
+		opcode 	:= instr_reg(6 downto 0);	
+		rd 		:= instr_reg(11 downto 7);
+		funct3  := instr_reg(14 downto 12);
+		rs1 	:= instr_reg(19 downto 15);
+		rs2 	:= instr_reg(24 downto 20);
+		funct7  := instr_reg(31 downto 25);
 
 		exec_op <= EXEC_NOP;
 		mem_op  <= MEM_NOP;
 		wb_op   <= WB_NOP;
 
 	--default outputs
-
+		alu_src := "000";
 		exec_op.rs1 <= rs1;  
 		exec_op.rs2 <= rs2;  
 		exec_op.readdata1 <= rddata1;
 		exec_op.readdata2 <= rddata2;
-		exec_op.imm <= generate_immediate(opcode, instr); -- directly connected to exec_op
+		exec_op.imm <= generate_immediate(opcode, instr_reg); -- directly connected to exec_op
 
 		pc_out <= pc_reg;
 		

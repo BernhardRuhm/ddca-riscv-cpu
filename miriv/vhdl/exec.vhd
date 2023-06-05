@@ -45,8 +45,10 @@ architecture rtl of exec is
 
 	function get_operand_B(op : exec_op_type) return data_type is
 		variable B : data_type;
-		variable alusrc : std_logic_vector(2 downto 0) := op.alusrc3 & op.alusrc2 & op.alusrc1;
+		variable alusrc : std_logic_vector(2 downto 0);
 	begin 
+		alusrc := op.alusrc3 & op.alusrc2 & op.alusrc1;
+
 		case alusrc is
 			when "000" | "010" 	=> B := op.readdata2;
 			when "001" 			=> B := op.imm;	
@@ -57,10 +59,12 @@ architecture rtl of exec is
 	end function;
 
 	function calculate_pc(pc : pc_type; op : exec_op_type) return pc_type is 
-		variable alusrc : std_logic_vector(2 downto 0) := op.alusrc3 & op.alusrc2 & op.alusrc1;
+		variable alusrc : std_logic_vector(2 downto 0);
 		variable pc_new : pc_type;
 		variable sum : integer;
 	begin
+		alusrc :=  op.alusrc3 & op.alusrc2 & op.alusrc1;
+
 		if (alusrc = "010" or alusrc = "100") then
 			sum := to_integer(unsigned(pc)) + to_integer(signed(op.imm));
 			pc_new  := std_logic_vector(to_unsigned(sum, PC_WIDTH));

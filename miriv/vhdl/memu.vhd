@@ -26,15 +26,12 @@ end entity;
 
 architecture rtl of memu is
 
-	function reverse_bytes(x : std_logic_vector(DATA_WIDTH-1 downto 0)) return std_logic_vector is
-		variable reverse : std_logic_vector(DATA_WIDTH-1 downto 0);
-	begin
-		reverse := x(7 downto 0) & x(15 downto 8) & x(23 downto 16) & x(31 downto 24);
-		return reverse;
-	end function;
 
 begin
+
+
 	mem_access : process(all)
+		variable wrdata : data_type;
 	begin
 		R  <= (others => '0');
 		B  <= '0';
@@ -46,9 +43,19 @@ begin
 		if (((op.memtype = MEM_H or op.memtype = MEM_HU or op.memtype = MEM_W) 
 				and (A(1 downto 0) = "01" or A(1 downto 0) = "11")) 
 			or (op.memtype = MEM_W and A(1 downto 0) = "10")) then 		
-				
-				XS <= '1' when op.memwrite = '1' else '0';
-				XL <= '1' when op.memread  = '1' else '0';
+			
+				if (op.memwrite = '1') then 
+					XS <= '1';
+				else 
+					XS <= '0';
+				end if;
+
+				if (op.memread = '1') then 
+					XL <= '1';
+				else 
+					XL <= '0';
+				end if;
+
 				M.wr <= '0';
 				M.rd <= '0';
 		else
@@ -56,8 +63,10 @@ begin
 				M.rd <= op.memread;
 		end if;
 
-		M.address <= A(ADDR_WIDTH + 1 downto 2);
 		B <= M.rd or D.busy;	
+		M.address <= A(ADDR_WIDTH + 1 downto 2);
+
+		M.wrdata <= (others => '-');
 		
 		if (op.memtype = MEM_W) then
 
@@ -69,12 +78,12 @@ begin
 
 			if (A(1 downto 0) = "00" or A(1 downto 0) = "01") then
 				M.byteena <= "1100";
-				M.wrdata  <= (DATA_WIDTH-1 downto 16 => reverse_bytes(W)(DATA_WIDTH-1 downto 16), others => '-');
+				M.wrdata(DATA_WIDTH-1 downto 16) <= reverse_bytes(W)(DATA_WIDTH-1 downto 16);
 				R <= std_logic_vector(resize(signed(reverse_bytes(D.rddata)(15 downto 0)), DATA_WIDTH));
 
 			elsif (A(1 downto 0) = "10" or A(1 downto 0) = "11") then
 				M.byteena <= "0011";
-				M.wrdata  <= (15 downto 0 => reverse_bytes(W)(DATA_WIDTH-1 downto 16),  others => '-');
+				M.wrdata(15 downto 0) <= reverse_bytes(W)(DATA_WIDTH-1 downto 16); 
 				R <= std_logic_vector(resize(signed(reverse_bytes(D.rddata)(DATA_WIDTH-1 downto 16)), DATA_WIDTH));
 			end if;
 
@@ -82,50 +91,50 @@ begin
 
 			if (A(1 downto 0) = "00" or A(1 downto 0) = "01") then
 				M.byteena <= "1100";
-				M.wrdata  <= (31 downto 16 => reverse_bytes(W)(DATA_WIDTH-1 downto 16), others => '-');
+				M.wrdata(31 downto 16) <= reverse_bytes(W)(DATA_WIDTH-1 downto 16);
 				R <= std_logic_vector(resize(unsigned(reverse_bytes(D.rddata)(15 downto 0)), DATA_WIDTH));
 
 			elsif (A(1 downto 0) = "10" or A(1 downto 0) = "11") then
 				M.byteena <= "0011";
-				M.wrdata  <= (15 downto 0 => reverse_bytes(W)(DATA_WIDTH-1 downto 16),  others => '-');
+				M.wrdata(15 downto 0) <= reverse_bytes(W)(DATA_WIDTH-1 downto 16); 
 				R <= std_logic_vector(resize(unsigned(reverse_bytes(D.rddata)(DATA_WIDTH-1 downto 16)), DATA_WIDTH));
 			end if;
 
 		elsif (op.memtype = MEM_B) then
 			if (A(1 downto 0) = "00") then
 				M.byteena <= "1000";
-				M.wrdata  <= (31 downto 24 => W(7 downto 0), others => '-');
+				M.wrdata(31 downto 24) <= W(7 downto 0); 
 				R <= std_logic_vector(resize(signed(D.rddata(31 downto 24)), DATA_WIDTH));
 			elsif (A(1 downto 0) = "01") then
 				M.byteena <= "0100";
-				M.wrdata  <= (23 downto 16 => W(7 downto 0), others => '-');
+				M.wrdata(23 downto 16) <= W(7 downto 0);
 				R <= std_logic_vector(resize(signed(D.rddata(23 downto 16)), DATA_WIDTH));
 			elsif (A(1 downto 0) = "10") then
 				M.byteena <= "0010";
-				M.wrdata  <= (15 downto 8 => W(7 downto 0), others => '-');
+				M.wrdata(15 downto 8) <= W(7 downto 0);
 				R <= std_logic_vector(resize(signed(D.rddata(15 downto 8)), DATA_WIDTH));
 			elsif (A(1 downto 0) = "11") then
 				M.byteena <= "0001";
-				M.wrdata  <= (7 downto 0 => W(7 downto 0), others => '-');
+				M.wrdata(7 downto 0) <= W(7 downto 0); 
 				R <= std_logic_vector(resize(signed(D.rddata(7 downto 0)), DATA_WIDTH));
 			end if;
 
 		elsif (op.memtype = MEM_BU) then
 			if (A(1 downto 0) = "00") then
 				M.byteena <= "1000";
-				M.wrdata  <= (31 downto 24 => W(7 downto 0), others => '-');
+				M.wrdata(31 downto 24) <= W(7 downto 0); 
 				R <= std_logic_vector(resize(unsigned(D.rddata(31 downto 24)), DATA_WIDTH));
 			elsif (A(1 downto 0) = "01") then
 				M.byteena <= "0100";
-				M.wrdata  <= (23 downto 16 => W(7 downto 0), others => '-');
+				M.wrdata(23 downto 16) <= W(7 downto 0); 
 				R <= std_logic_vector(resize(unsigned(D.rddata(23 downto 16)), DATA_WIDTH));
 			elsif (A(1 downto 0) = "10") then
 				M.byteena <= "0010";
-				M.wrdata  <= (15 downto 8 => W(7 downto 0), others => '-');
+				M.wrdata(15 downto 8) <= W(7 downto 0);
 				R <= std_logic_vector(resize(unsigned(D.rddata(15 downto 8)), DATA_WIDTH));
 			elsif (A(1 downto 0) = "11") then
 				M.byteena <= "0001";
-				M.wrdata  <= (7 downto 0 => W(7 downto 0), others => '-');
+				M.wrdata(7 downto 0) <= W(7 downto 0);
 				R <= std_logic_vector(resize(unsigned(D.rddata(7 downto 0)), DATA_WIDTH));
 			end if;
 		end if;

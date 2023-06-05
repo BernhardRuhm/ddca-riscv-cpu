@@ -53,7 +53,6 @@ architecture impl of pipeline is
 	signal pc_old_out_mem 	: pc_type;
 	signal aluresult_mem 	: data_type;
 	signal memresult_mem 	: data_type;
-	signal mem_busy_mem 	: std_logic;
 	signal reg_write_mem 	: reg_write_type;
 	signal exc_load 		: std_logic;
 	signal exc_store 		: std_logic;
@@ -162,7 +161,7 @@ begin
 
 		-- to FETCH
 		pc_new_out => pc_new_out_mem,
-		pcsrc 	   => pc_src_mem,
+		pcsrc 	   => pcsrc_mem,
 
 		-- to WB
 		wbop_out 	  => wb_op_mem,

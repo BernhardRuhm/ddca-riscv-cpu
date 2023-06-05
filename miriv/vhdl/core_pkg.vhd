@@ -52,8 +52,11 @@ package body core_pkg is
 
 
 	pure function reverse_bytes(x : std_logic_vector(DATA_WIDTH-1 downto 0)) return std_logic_vector is
+		variable reverse : std_logic_vector(DATA_WIDTH-1 downto 0);
 	begin
-		return x(7 downto 0) & x(15 downto 8) & x(23 downto 16) & x(31 downto 24);
+		reverse := x(7 downto 0) & x(15 downto 8) & x(23 downto 16) & x(31 downto 24);
+		return reverse;
 	end function;
+
 
 end package body;
