@@ -137,7 +137,7 @@ begin
 		reg_write_wr  => reg_write_wb
 	);
 
-	mem_inst : entity work.mem
+	memoey_inst : entity work.mem
 	port map(
 		clk   => clk,
 		res_n => res_n,
@@ -179,7 +179,7 @@ begin
 	);
 
 
-	wb_inst : entity work.wb
+	writeback_inst : entity work.wb
 	port map(
 		clk   => clk,
 		res_n => res_n,
