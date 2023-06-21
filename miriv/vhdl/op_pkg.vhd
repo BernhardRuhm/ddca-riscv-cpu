@@ -123,13 +123,13 @@ package op_pkg is
 
 	constant OPC_LOAD 	: opcode_type := "0000011";
 	constant OPC_STORE 	: opcode_type := "0100011"; 
-	constant OPC_BRANCH : opcode_type := "1100011";
+	constant OPC_BRANCH 	: opcode_type := "1100011";
 	constant OPC_JALR 	: opcode_type := "1100111";
 	constant OPC_JAL 	: opcode_type := "1101111";
-	constant OPC_OP_IMM : opcode_type := "0010011";
+	constant OPC_OP_IMM 	: opcode_type := "0010011";
 	constant OPC_OP 	: opcode_type := "0110011";
 	constant OPC_AUIPC 	: opcode_type := "0010111";
 	constant OPC_LUI 	: opcode_type := "0110111";
-	constant OPC_NOP 	: opcode_type := "0001111";
+	--constant OPC_NOP 	: opcode_type := "0010011";
 
 end package;

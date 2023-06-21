@@ -92,6 +92,8 @@ architecture rtl of decode is
 
 begin
 
+	pc_out <= pc_reg;
+
 	reg_file_inst : entity work.regfile
 	port map(
 		clk       => clk,
@@ -132,6 +134,17 @@ begin
 		variable funct7 : std_logic_vector(FUNCT7_WIDTH-1 downto 0);
 		variable alu_src : std_logic_vector(2 downto 0);
 
+		procedure decode_nop is
+		begin
+
+			exec_op.rs1 <= ZERO_REG;
+			exec_op.rs2 <= ZERO_REG;
+			exec_op.readdata2 <= ZERO_DATA;
+			wb_op   <= WB_NOP;
+			exec_op.readdata1 <= ZERO_DATA;
+			alu_src := "000";
+		end procedure;
+
 		procedure decode_R_type_instr is 
 		begin
 			exec_op.aluop <= get_alu_op(funct3, funct7);
@@ -141,18 +154,21 @@ begin
 
 		procedure decode_imm_instr is 
 		begin
-		
-			exec_op.rs2 <= ZERO_REG;
-			exec_op.readdata2 <= ZERO_DATA;
-			exec_op.aluop <= get_alu_op(funct3, funct7);
-			alu_src := "001";
-			wb_op <= (rd => rd, write => '1', src => WBS_ALU);
+			if (instr_reg = NOP_INST) then
+				decode_nop;	
+			else 	
+				exec_op.rs2 <= ZERO_REG;
+				exec_op.readdata2 <= ZERO_DATA;
+				exec_op.aluop <= get_alu_op(funct3, funct7);
+				alu_src := "001";
+				wb_op <= (rd => rd, write => '1', src => WBS_ALU);
+			end if;
 		end procedure;
 		
 		procedure decode_load_instr is 
 		begin
 
-			case funct3 is
+:x
 				when "000" 	=> mem_op.mem.memtype <= MEM_B;
 				when "001" 	=> mem_op.mem.memtype <= MEM_H;
 				when "010"  => mem_op.mem.memtype <= MEM_W;
@@ -255,23 +271,13 @@ begin
 			wb_op <=(rd => rd, write => '1', src => WBS_ALU);
 		end procedure;
 
-		procedure decode_nop is
-		begin
-
-			exec_op.rs1 <= ZERO_REG;
-			exec_op.rs2 <= ZERO_REG;
-			exec_op.readdata2 <= ZERO_DATA;
-			exec_op.readdata1 <= ZERO_DATA;
-			alu_src := "000";
-		end procedure;
-
 	begin
 
 
 
 	-- extract operands from instruction
 		opcode 	:= instr_reg(6 downto 0);	
-		rd 		:= instr_reg(11 downto 7);
+		rd 	:= instr_reg(11 downto 7);
 		funct3  := instr_reg(14 downto 12);
 		rs1 	:= instr_reg(19 downto 15);
 		rs2 	:= instr_reg(24 downto 20);
@@ -289,7 +295,6 @@ begin
 		exec_op.readdata2 <= rddata2;
 		exec_op.imm <= generate_immediate(opcode, instr_reg); -- directly connected to exec_op
 
-		pc_out <= pc_reg;
 		
 		exc_dec <= '0';
 
@@ -303,12 +308,12 @@ begin
 			when OPC_JAL 	=> decode_J_type_instr;
 			when OPC_LUI 	=> decode_lui_instr;
 			when OPC_AUIPC 	=> decode_auipc_instr;
-			when OPC_NOP 	=> 
-				if (funct3 = "000") then
-					decode_nop;
-				else 
-					exc_dec <= '1';
-				end if;
+		--	when OPC_NOP 	=> 
+		--		if (funct3 = "000") then
+	--				decode_nop;
+		 
+	--				exc_dec <= '1';
+	--			end if;
 			when others 	=> exc_dec <= '1';
 		end case;
 		

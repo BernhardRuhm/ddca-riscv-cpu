@@ -97,6 +97,8 @@ begin
 			wb_reg  <= WB_NOP;
 		elsif (rising_edge(clk)) then
 
+			aluB <= get_operand_B(op); -- second alu operand
+
 			if (stall = '0') then
 				pc_reg  <= pc_in;
 				op_reg  <= op;
@@ -113,7 +115,6 @@ begin
 		end if;
 	end process;
 
-	aluB <= get_operand_B(op); -- second alu operand
 
 	pc_old_out <= pc_reg;
 	pc_new_out <= calculate_pc(pc_reg, op_reg);

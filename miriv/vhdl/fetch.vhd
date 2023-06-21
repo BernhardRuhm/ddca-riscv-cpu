@@ -57,7 +57,7 @@ begin
 		end if;
 
 		if (res_n = '0') then
-			pc <= ZERO_PC; --(1 downto 0 => '0', others => '1');
+			pc <= (1 downto 0 => '0', others => '1');
 		elsif (rising_edge(clk)) then
 			if (stall = '0') then
 				pc <= pc_next;
