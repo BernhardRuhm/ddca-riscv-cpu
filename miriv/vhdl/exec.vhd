@@ -81,8 +81,8 @@ begin
 
 	alu_inst : entity work.alu
 	port map(
-		op 	=> op.aluop,    
-		A 	=> op.readdata1, -- always op.readdata1, since it is data from rs1 or ZERO_DATA otherwise
+		op 	=> op_reg.aluop,    
+		A 	=> op_reg.readdata1, -- always op.readdata1, since it is data from rs1 or ZERO_DATA otherwise
 		B 	=> aluB,
 		R  	=> aluresult,
 		Z  	=> zero
@@ -97,7 +97,6 @@ begin
 			wb_reg  <= WB_NOP;
 		elsif (rising_edge(clk)) then
 
-			aluB <= get_operand_B(op); -- second alu operand
 
 			if (stall = '0') then
 				pc_reg  <= pc_in;
@@ -116,6 +115,7 @@ begin
 	end process;
 
 
+	aluB <= get_operand_B(op_reg); -- second alu operand
 	pc_old_out <= pc_reg;
 	pc_new_out <= calculate_pc(pc_reg, op_reg);
 	wrdata 	   <= op_reg.readdata2 when mem_reg.mem.memwrite = '1' else ZERO_DATA;

@@ -168,7 +168,7 @@ begin
 		procedure decode_load_instr is 
 		begin
 
-:x
+			case funct3 is
 				when "000" 	=> mem_op.mem.memtype <= MEM_B;
 				when "001" 	=> mem_op.mem.memtype <= MEM_H;
 				when "010"  => mem_op.mem.memtype <= MEM_W;
