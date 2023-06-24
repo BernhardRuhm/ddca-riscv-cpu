@@ -22,4 +22,13 @@ end entity;
 
 architecture rtl of fwd is
 begin
+
+	do_fwd <= '0' when reg = ZERO_REG else  
+			  '1' when reg_write_mem.write = '1' and reg = reg_write_mem.reg else 
+			  '1' when reg_write_wb.write = '1' and reg = reg_write_wb.reg else 
+			  '0';
+	
+	val <= reg_write_mem.data when reg_write_mem.write = '1' and reg = reg_write_mem.reg else 
+		   reg_write_wb.data  when reg_write_wb.write = '1' and reg = reg_write_wb.reg else 
+		   ZERO_DATA;
 end architecture;

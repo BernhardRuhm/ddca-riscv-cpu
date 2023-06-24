@@ -60,6 +60,20 @@ architecture impl of pipeline is
 -- wb out signals 
 	signal reg_write_wb : reg_write_type;
 
+-- fwd signals 
+	signal stall_fetch 		: std_logic; 
+	signal stall_dec 		: std_logic; 	
+	signal stall_exec     	: std_logic; 	
+	signal stall_mem 		: std_logic; 	
+	signal stall_wb 		: std_logic; 	
+
+	signal flush_fetch 		: std_logic;
+	signal flush_dec 		: std_logic; 	
+	signal flush_exec 		: std_logic; 	
+	signal flush_mem 		: std_logic; 	
+	signal flush_wb 		: std_logic; 	
+
+
 begin
 
 	stall <= mem_busy_fetch or mem_busy_mem;
@@ -69,8 +83,8 @@ begin
 	port map(
 		clk   => clk,
 		res_n => res_n,
-		stall => stall,
-		flush => flush,
+		stall => stall_fetch,
+		flush => flush_fetch,
 
 		-- to control
 		mem_busy => mem_busy_fetch,
@@ -89,8 +103,8 @@ begin
 	port map(
 		clk   => clk, 
 		res_n => res_n, 
-		stall => stall, 
-		flush => flush, 
+		stall => stall_dec, 
+		flush => flush_dec, 
 
 		-- from fetch
 		pc_in => pc_out_fetch,
@@ -113,8 +127,8 @@ begin
 	port map(
 		clk   => clk,
 		res_n => res_n,
-		stall => stall,
-		flush => flush,
+		stall => stall_exec,
+		flush => flush_exec,
 
 		-- from DEC
 		op 	  => exec_op_dec,
@@ -141,8 +155,8 @@ begin
 	port map(
 		clk   => clk,
 		res_n => res_n,
-		stall => stall,
-		flush => flush,
+		stall => stall_mem,
+		flush => flush_mem,
 
 		-- to Ctrl
 		mem_busy => mem_busy_mem,
@@ -183,8 +197,8 @@ begin
 	port map(
 		clk   => clk,
 		res_n => res_n,
-		stall => stall,
-		flush => flush,
+		stall => stall_wb,
+		flush => flush_wb,
 
 		-- from MEM
 		op 		  => wb_op_mem,
@@ -194,5 +208,31 @@ begin
 
 		-- to FWD and DEC
 		reg_write => reg_write_wb
+	);
+
+	ctrl_inst : entity work.ctrl
+	port map(
+		clk   => clk,
+		res_n => res_n,
+		stall => stall,
+
+		stall_fetch => stall_fetch,
+		stall_dec 	=> stall_dec,
+		stall_exec 	=> stall_exec,
+		stall_mem 	=> stall_mem,
+		stall_wb 	=> stall_wb,
+
+		flush_fetch => flush_fetch,
+		flush_dec 	=> flush_dec,
+		flush_exec 	=> flush_exec,
+		flush_mem 	=> flush_mem,
+		flush_wb 	=> flush_wb,
+
+		-- from FWD
+		wb_op_exec 	=> wb_op_mem,
+		exec_op_dec => exec_op,
+
+		pcsrc_in 	=> pcsrc_mem, 
+		pcsrc_out 	=> open
 	);
 end architecture;

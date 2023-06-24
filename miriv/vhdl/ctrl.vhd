@@ -34,4 +34,17 @@ end entity;
 
 architecture rtl of ctrl is
 begin
+
+	flush_fetch <= pcsrc_in; 
+	flush_dec   <= pcsrc_in;
+	flush_exec  <= pcsrc_in;
+	flush_mem   <= pcsrc_in;   
+	flush_wb   	<= '0'; -- no flush needed
+
+	stall_fetch <= stall;
+	stall_dec   <= stall;
+	stall_exec  <= stall;
+	stall_mem   <= stall;
+	stall_wb    <= stall;
+
 end architecture;
