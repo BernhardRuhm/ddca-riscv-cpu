@@ -136,7 +136,7 @@ begin
 		case curr.wbop.src is
 			when WBS_OPC =>
 				reg_write.data <= std_logic_vector(resize(unsigned(curr.pc_old) + 4, INSTR_WIDTH));
-			when WBS_ALU =>
+			when WBS_MEM =>
 				reg_write.data <= memresult;
 			when others =>
 				reg_write.data <= curr.aluresult;

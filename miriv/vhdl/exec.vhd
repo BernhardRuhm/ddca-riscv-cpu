@@ -36,26 +36,35 @@ entity exec is
 end entity;
 
 architecture rtl of exec is
-	signal aluB : data_type;
+
+	signal aluA, aluB : data_type;
 	
-	signal pc_reg, pc_reg_next 	 : pc_type;
-	signal op_reg, op_reg_next 	 : exec_op_type;
+	signal pc_reg, pc_reg_next   : pc_type;
+	signal op_reg, op_reg_next   : exec_op_type;
 	signal mem_reg, mem_reg_next : mem_op_type;
 	signal wb_reg, wb_reg_next   : wb_op_type;
+	
+	-- fwd
+	signal fwd1, fwd2 : std_logic;
+	signal fwd1_val, fwd2_val : data_type;
 
-	function get_operand_B(op : exec_op_type) return data_type is
+	function get_operand_B(op : exec_op_type; fwd : std_logic; fwd_val : data_type) return data_type is
 		variable B : data_type;
 		variable alusrc : std_logic_vector(2 downto 0);
 	begin 
 		alusrc := op.alusrc3 & op.alusrc2 & op.alusrc1;
-
-		case alusrc is
-			when "000" | "010" 	=> B := op.readdata2;
-			when "001" 			=> B := op.imm;	
-			when others 		=> B := ZERO_DATA; 
-		end case;
-
-		return B;
+		
+		if (fwd = '1') then
+			return fwd_val;
+		else 
+			case alusrc is
+				when "000" | "010" 	=> B := op.readdata2;
+				when "001" 		=> B := op.imm;	
+				when others 		=> B := ZERO_DATA; 
+			end case;
+	
+			return B;
+		end if;
 	end function;
 
 	function calculate_pc(pc : pc_type; op : exec_op_type) return pc_type is 
@@ -82,7 +91,7 @@ begin
 	alu_inst : entity work.alu
 	port map(
 		op 	=> op_reg.aluop,    
-		A 	=> op_reg.readdata1, -- always op.readdata1, since it is data from rs1 or ZERO_DATA otherwise
+		A 	=> aluA, 
 		B 	=> aluB,
 		R  	=> aluresult,
 		Z  	=> zero
@@ -114,13 +123,38 @@ begin
 		end if;
 	end process;
 
-
-	aluB <= get_operand_B(op_reg); -- second alu operand
+	aluA <= fwd1_val when fwd1 = '1' else op_reg.readdata1;
+	aluB <= get_operand_B(op_reg, fwd2, fwd2_val); -- second alu operand
 	pc_old_out <= pc_reg;
 	pc_new_out <= calculate_pc(pc_reg, op_reg);
 	wrdata 	   <= op_reg.readdata2 when mem_reg.mem.memwrite = '1' else ZERO_DATA;
 	memop_out  <= mem_reg;
 	wbop_out   <= wb_reg;
-	exec_op    <= EXEC_NOP; --op_reg; assigned EXEC_NOP for simplifying debugging, since it can be ignorred anyways
+	exec_op    <= op_reg; 
+
+	fwd_1_inst : entity work.fwd
+	port map(
+		-- from Mem
+		reg_write_mem => reg_write_mem, 
+		-- from WB
+		reg_write_wb => reg_write_wr, 
+		-- from/to EXEC
+		reg => op_reg.rs1,      
+		val => fwd1_val,     
+		do_fwd => fwd1  
+	);
+
+
+	fwd_2_inst : entity work.fwd
+	port map(
+		-- from Mem
+		reg_write_mem => reg_write_mem, 
+		-- from WB
+		reg_write_wb => reg_write_wr, 
+		-- from/to EXEC
+		reg => op_reg.rs2,      
+		val => fwd2_val,     
+		do_fwd => fwd2  
+	);
 
 end architecture;
