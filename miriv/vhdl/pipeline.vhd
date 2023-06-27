@@ -77,7 +77,6 @@ architecture impl of pipeline is
 begin
 
 	stall <= mem_busy_fetch or mem_busy_mem;
-	flush <= '0';
 
 	fetch_inst : entity work.fetch
 	port map(

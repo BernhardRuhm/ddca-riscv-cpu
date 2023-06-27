@@ -46,5 +46,7 @@ begin
 	stall_exec  <= stall;
 	stall_mem   <= stall;
 	stall_wb    <= stall;
+	
+	pcsrc_out <= pc_src_in;
 
 end architecture;
