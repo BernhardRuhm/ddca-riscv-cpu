@@ -50,7 +50,7 @@ begin
 		mem_busy <= mem_in.busy;
 		pc_out <= pc;
 
-		if (flush = '1') then
+		if (flush = '1' or signed(pc) < 0) then
 			instr <= NOP_INST;
 		else
 			instr <= reverse_bytes(mem_in.rddata);
@@ -58,6 +58,7 @@ begin
 
 		if (res_n = '0') then
 			pc <= (1 downto 0 => '0', others => '1');
+			instr <= NOP_INST;
 		elsif (rising_edge(clk)) then
 			if (stall = '0') then
 				pc <= pc_next;
