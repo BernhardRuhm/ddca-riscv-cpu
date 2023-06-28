@@ -19,7 +19,7 @@ entity fetch is
 		pcsrc      : in  std_logic;
 		pc_in      : in  pc_type;
 		pc_out     : out pc_type := (others => '0');
-		instr      : out instr_type;
+		instr      : out instr_type := NOP_INST;
 
 		-- memory controller interface
 		mem_out   : out mem_out_type;
@@ -29,7 +29,7 @@ end entity;
 
 architecture rtl of fetch is
 
-	signal pc, pc_next : pc_type;
+	signal pc, pc_next : pc_type := ZERO_PC;
 
 begin
 
@@ -37,6 +37,15 @@ begin
 
 	fetch_instr : process(all)
 	begin
+
+		if (res_n = '0') then
+			pc <= (1 downto 0 => '0', others => '1');
+			instr <= NOP_INST;
+		elsif (rising_edge(clk)) then
+			if (stall = '0') then
+				pc <= pc_next;
+			end if;
+		end if;
 		
 		mem_out <= MEM_OUT_NOP;
 		mem_out.rd <= '1';
@@ -49,6 +58,7 @@ begin
 
 		mem_busy <= mem_in.busy;
 		pc_out <= pc;
+		
 
 		if (flush = '1' or signed(pc) < 0) then
 			instr <= NOP_INST;
@@ -56,14 +66,6 @@ begin
 			instr <= reverse_bytes(mem_in.rddata);
 		end if;
 
-		if (res_n = '0') then
-			pc <= (1 downto 0 => '0', others => '1');
-			instr <= NOP_INST;
-		elsif (rising_edge(clk)) then
-			if (stall = '0') then
-				pc <= pc_next;
-			end if;
-		end if;
 	end process;
 
 end architecture;
