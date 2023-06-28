@@ -37,8 +37,8 @@ begin
 		mem_d_in  => mem_d_in_s
 	);
 
-	--cache_inst : entity work.cache(impl) --including the cache implementation
-	cache_inst : entity work.cache(bypass) --bypassing the cache
+	cache_inst : entity work.cache(impl) --including the cache implementation
+	--cache_inst : entity work.cache(bypass) --bypassing the cache
 	generic map (
 		ADDR_MASK => 14x"0FFF"
 	)

@@ -31,5 +31,48 @@ entity mgmt_st is
 end entity;
 
 architecture impl of mgmt_st is
+
+	signal mgmt_in : c_mgmt_info;
+	signal mgmt_out : c_mgmt_info;
+	
 begin
+
+	proc : process(all)
+	begin
+		valid_out <= '0';
+		dirty_out <= '0';
+		tag_out   <= (others => '0');
+		way_out <= (others => '0');
+
+		if rd = '1' then
+			valid_out <= mgmt_out.valid;
+			dirty_out <= mgmt_out.dirty;
+			tag_out   <= mgmt_out.tag;
+		end if;
+
+	end process;
+
+	hit_out <= '1' when mgmt_out.tag = tag_in and mgmt_out.valid = '1' else '0';
+
+	mgmt_st_1w_inst : entity work.mgmt_st_1w
+	generic map (
+		SETS_LD => SETS_LD
+	)
+	port map (
+		clk => clk,
+		res_n => res_n,
+
+		index => index,
+		we => wr,
+		we_repl => '0',
+
+		mgmt_info_in => (
+			valid 	=> valid_in,
+			dirty 	=> dirty_in,
+			tag   	=> tag_in,
+			replace => '0'
+		),
+		mgmt_info_out => mgmt_out
+	);
+	
 end architecture;

@@ -27,4 +27,19 @@ end entity;
 
 architecture impl of data_st is
 begin
+	-- 1-way set associative cache
+	data_st_1w_inst : entity work.data_st_1w
+		generic map (
+			SETS_LD  => SETS_LD
+		)
+		port map (
+			clk        => clk,
+			we         => we,
+			rd         => rd,
+			index      => index,
+			byteena    => byteena,
+			data_in    => data_in,
+			data_out   => data_out
+		);
+
 end architecture;
