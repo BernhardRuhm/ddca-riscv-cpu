@@ -19,7 +19,7 @@ entity fetch is
 		pcsrc      : in  std_logic;
 		pc_in      : in  pc_type;
 		pc_out     : out pc_type := (others => '0');
-		instr      : out instr_type := NOP_INST;
+		instr      : out instr_type;
 
 		-- memory controller interface
 		mem_out   : out mem_out_type;
