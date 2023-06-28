@@ -1,7 +1,0 @@
-# vsim -c -t ps work.memu_tb -quiet -do "run -all;quit -f" 
-# Start time: 20:42:44 on Jun 28,2023
-# ** Error (suppressible): (vsim-19) Failed to access library 'work' at "work".
-# No such file or directory. (errno = ENOENT)
-# Error loading design
-# End time: 20:42:44 on Jun 28,2023, Elapsed time: 0:00:00
-# Errors: 1, Warnings: 0
