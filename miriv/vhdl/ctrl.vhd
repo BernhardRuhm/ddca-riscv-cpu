@@ -33,27 +33,20 @@ entity ctrl is
 end entity;
 
 architecture rtl of ctrl is
-	-- signal load_hazard : std_logic;
 begin
-	-- temporary values
-	pcsrc_out <= '0';
-	flush_wb <= '0';
 
-	-- Doesn't change behavior in simulation and on hardware but decreases fmax.
+	flush_fetch <= pcsrc_in; 
+	flush_dec   <= pcsrc_in;
+	flush_exec  <= pcsrc_in;
+	flush_mem   <= pcsrc_in;   
+	flush_wb    <= '0'; -- no flush needed
 
-	--load_hazard <= '1' when (wb_op_exec.src = WBS_MEM and wb_op_exec.write = '1' and
-	--	   				   (wb_op_exec.rd = exec_op_dec.rs1 or wb_op_exec.rd = exec_op_dec.rs2)) else
-	--			   '0';
+	stall_fetch <= stall;
+	stall_dec   <= stall;
+	stall_exec  <= stall;
+	stall_mem   <= stall;
+	stall_wb    <= stall;
 	
-	flush_fetch <= pcsrc_in;
-	flush_dec <= pcsrc_in;
-	flush_exec <= pcsrc_in; -- or load_hazard;
-	flush_mem <= pcsrc_in;
-
-	stall_fetch <=  stall; -- or load_hazard;
-	stall_dec <= stall; -- or load_hazard;
-	stall_exec <= stall;
-	stall_mem <= stall;
-	stall_wb <= stall;
+	pcsrc_out <= pcsrc_in;
 
 end architecture;
