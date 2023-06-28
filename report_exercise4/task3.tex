@@ -5,26 +5,26 @@
 	\toprule
 	                     & LC Combinationals & LC Registers & Memory Bits \\
 	\midrule
-	Fetch Stage          &                   &              &             \\
-	Decode Stage         &                   &              &             \\
-	-- Register File     &                   &              &             \\
-	Execute Stage        &                   &              &             \\
-	-- ALU               &                   &              &             \\
-	Memory Stage         &                   &              &             \\
-	-- Memory Unit       &                   &              &             \\
-	Write-Back Stage     &                   &              &             \\
-	Forwarding Unit      &                   &              &             \\
-	Control Unit         &                   &              &             \\
+	Fetch Stage          & 66                  & 16             &0             \\
+	Decode Stage         & 3774                & 1114              &0             \\
+	-- Register File     & 3685                & 1066             & 0            \\
+	Execute Stage        & 886                 & 153             &  0           \\
+	-- ALU               & 408                  & 0             &0             \\
+	Memory Stage         & 577                  & 115             &0             \\
+	-- Memory Unit       & 109                  & 0             &   0          \\
+	Write-Back Stage     & 63                  & 88             & 0            \\
+	Forwarding Unit      & 17                  & 0             &  0           \\
+	Control Unit         & 5                   & 0              & 0            \\
 	\cmidrule{1-4}
-	Sum                  &                   &              &             \\
+	Sum                  & 9590                  &2552              & 0             \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{qa}
 	\question{What is the maximum frequency of your design?}
-	\answer{}
+	\answer{73.27 MHz}
 	\question{Where is the critical path of your design?}
-	\answer{}
+	\answer{Load-Instructions, since it uses every stage.}
 \end{qa}
 
