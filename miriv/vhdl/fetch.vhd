@@ -19,7 +19,7 @@ entity fetch is
 		pcsrc      : in  std_logic;
 		pc_in      : in  pc_type;
 		pc_out     : out pc_type := (others => '0');
-		instr      : out instr_type;
+		instr      : out instr_type := NOP_INST;
 
 		-- memory controller interface
 		mem_out   : out mem_out_type;
@@ -29,7 +29,7 @@ end entity;
 
 architecture rtl of fetch is
 
-	signal pc, pc_next : pc_type := ZERO_PC;
+	signal pc, pc_next : pc_type := (1 downto 0 => '0', others => '1');
 
 begin
 
