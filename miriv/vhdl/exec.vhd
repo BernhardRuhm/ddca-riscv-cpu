@@ -36,125 +36,151 @@ entity exec is
 end entity;
 
 architecture rtl of exec is
+	type register_t is 
+	record
+		op 			  : exec_op_type;
+		pc_in 		  : pc_type;
+		memop_in 	  : mem_op_type;
+		wbop_in 	  : wb_op_type;
+	end record;
+	signal curr : register_t;
+	signal nxt 	: register_t;
 
-	signal aluA, aluB : data_type;
-	
-	signal pc_reg, pc_reg_next   : pc_type;
-	signal op_reg, op_reg_next   : exec_op_type;
-	signal mem_reg, mem_reg_next : mem_op_type;
-	signal wb_reg, wb_reg_next   : wb_op_type;
-	
-	-- fwd
-	signal fwd1, fwd2 : std_logic;
-	signal fwd1_val, fwd2_val : data_type;
+	signal alusrc_21 	: std_logic_vector(1 downto 0);
+	signal alu_input_a 	: data_type;
+	signal alu_input_b 	: data_type;
 
-	function get_operand_B(op : exec_op_type; fwd : std_logic; fwd_val : data_type) return data_type is
-		variable B : data_type;
-		variable alusrc : std_logic_vector(2 downto 0);
-	begin 
-		alusrc := op.alusrc3 & op.alusrc2 & op.alusrc1;
-		
-		if (fwd = '1') then
-			return fwd_val;
-		else 
-			case alusrc is
-				when "000" | "010" 	=> B := op.readdata2;
-				when "001" 		=> B := op.imm;	
-				when others 		=> B := ZERO_DATA; 
-			end case;
-	
-			return B;
-		end if;
-	end function;
+	signal fwd1_val		: data_type;
+	signal fwd2_val		: data_type;
+	signal do_fwd1		: std_logic;
+	signal do_fwd2		: std_logic;
 
-	function calculate_pc(pc : pc_type; op : exec_op_type) return pc_type is 
-		variable alusrc : std_logic_vector(2 downto 0);
-		variable pc_new : pc_type;
-		variable sum : integer;
+	function get_jalr_pc(readdata : data_type; imm : data_type) return std_logic_vector is
+		variable ret_val : pc_type;
+		variable sum : signed(data_type'length - 1 downto 0);
 	begin
-		alusrc :=  op.alusrc3 & op.alusrc2 & op.alusrc1;
-
-		if (alusrc = "010" or alusrc = "100") then
-			sum := to_integer(unsigned(pc)) + to_integer(signed(op.imm));
-			pc_new  := std_logic_vector(to_unsigned(sum, PC_WIDTH));
-		elsif (alusrc = "011") then 
-			sum := to_integer(signed(op.readdata1)) + to_integer(signed(op.imm));
-			pc_new  := std_logic_vector(to_unsigned(sum, PC_WIDTH));
-		else 
-			pc_new := pc;
-		end if;
-
-		return pc_new;
+		sum := signed(imm) + signed(readdata);
+		ret_val:= std_logic_vector(resize(sum, ret_val'length));
+		ret_val(0) := '0';
+		return ret_val;
 	end function;
+
+	function get_new_pc(pc : pc_type; imm : data_type) return std_logic_vector is
+		variable ret_val : pc_type;
+		variable sum_int : integer;
+	begin
+		sum_int := to_integer(unsigned(pc)) + to_integer(signed(imm));
+		ret_val := std_logic_vector(to_unsigned(sum_int, ret_val'length));
+		return ret_val;
+	end function;
+
 begin
 
-	alu_inst : entity work.alu
-	port map(
-		op 	=> op_reg.aluop,    
-		A 	=> aluA, 
-		B 	=> aluB,
-		R  	=> aluresult,
-		Z  	=> zero
-	);
-	
-	sync : process(all)
+	sync_p : process(clk, res_n)
 	begin
-		if (res_n = '0') then
-			pc_reg  <= ZERO_PC;
-			op_reg  <= EXEC_NOP;
-			mem_reg <= MEM_NOP;
-			wb_reg  <= WB_NOP;
-		elsif (rising_edge(clk)) then
-
-
-			if (stall = '0') then
-				pc_reg  <= pc_in;
-				op_reg  <= op;
-				mem_reg <= memop_in;
-				wb_reg  <= wbop_in;
-			end if;
-
-			if (flush = '1') then
-			pc_reg  <= ZERO_PC;
-			op_reg  <= EXEC_NOP;
-			mem_reg <= MEM_NOP;
-			wb_reg  <= WB_NOP;
-			end if;
+		if res_n = '0' then
+			curr <= (
+				op => EXEC_NOP,
+				pc_in => ZERO_PC,
+				memop_in => MEM_NOP,
+				wbop_in => WB_NOP
+			);
+		elsif rising_edge(clk) then
+			curr <= nxt;
 		end if;
 	end process;
 
-	aluA <= fwd1_val when fwd1 = '1' else op_reg.readdata1;
-	aluB <= get_operand_B(op_reg, fwd2, fwd2_val); -- second alu operand
-	pc_old_out <= pc_reg;
-	pc_new_out <= calculate_pc(pc_reg, op_reg);
-	wrdata 	   <= op_reg.readdata2 when mem_reg.mem.memwrite = '1' else ZERO_DATA;
-	memop_out  <= mem_reg;
-	wbop_out   <= wb_reg;
-	exec_op    <= op_reg; 
+	exec_p : process(all)
+	begin
+		-- default output values 
+		pc_old_out <= curr.pc_in;
+		memop_out <= curr.memop_in;
+		wbop_out <= curr.wbop_in;
+		exec_op <= curr.op;
 
-	fwd_1_inst : entity work.fwd
-	port map(
-		-- from Mem
-		reg_write_mem => reg_write_mem, 
-		-- from WB
-		reg_write_wb => reg_write_wr, 
-		-- from/to EXEC
-		reg => op_reg.rs1,      
-		val => fwd1_val,     
-		do_fwd => fwd1  
+		-- write to IF/ID register
+		if stall = '0' then
+			if flush = '1' then
+				nxt <= (
+					op => EXEC_NOP,
+					pc_in => ZERO_PC,
+					memop_in => MEM_NOP,
+					wbop_in => WB_NOP
+				);
+			else
+				nxt <= (
+					op => op,
+					pc_in => pc_in,
+					memop_in => memop_in,
+					wbop_in => wbop_in
+				);
+			end if;
+		else
+			nxt <= curr;
+		end if;
+	end process;
+
+	-- alusrc-table for exec_op
+	-- +───+───+───++─────+─────────+
+	-- |   alusrc  ||   ALU-inputs  |
+	-- +───+───+───++─────+─────────+
+	-- | 3 | 2 | 1 ||  A  |    B    |
+	-- +───+───+───++─────+─────────+
+	-- | 0 | 0 | 0 || rs1 | rs2     | ◄─ R-type
+	-- | 0 | 0 | 1 || rs1 | imm     | ◄─ I-type + S-type (also for DMEM address calc ─► use aluresult as address for wr/rd operation on DMEM in mem-stage)
+	-- | 0 | 1 | 0 || 0   | U-imm   | ◄─ LUI (imm<<12 is part of U-type-imm)
+	-- | 0 | 1 | 1 || pc  | U-imm   | ◄─ AUIPC (imm<<12 is part of U-type-imm)
+	-- | - | - | - || --- | ------- | ---------------------------------
+	-- | 1 | 0 | 0 || rs1 | rs2     | ◄─ B-type(WBS_NOP, pc=pc+B-imm)
+	-- | 1 | 0 | 1 || pc  | 4       | ◄─ JALR (WBS_OPC + pc[0]='0')
+	-- | 1 | 1 | 0 || pc  | 4	    | ◄─ JAL(WBS_OPC, imm<<1 is part of J-type-imm) 
+	-- | 1 | 1 | 1 || x   | x       |
+	-- +───+───+───++─────+─────────+
+
+	alusrc_21 <= curr.op.alusrc2 & curr.op.alusrc1;
+	-- 
+	pc_new_out	<= 	get_new_pc(pc => curr.pc_in, imm => curr.op.imm) when ((alusrc_21 = "10" or alusrc_21 = "00") and curr.op.alusrc3 = '1')  else
+					get_jalr_pc(imm => curr.op.imm, readdata => curr.op.readdata1) when (alusrc_21 = "01" and curr.op.alusrc3 = '1') else
+					ZERO_PC;
+
+	wrdata 		<= 	fwd2_val when do_fwd2 = '1' and (alusrc_21 = "01" and curr.op.alusrc3 = '0') else
+					curr.op.readdata2 when (alusrc_21 = "01" and curr.op.alusrc3 = '0') else
+					ZERO_DATA;
+
+	alu_input_a <= 	fwd1_val when (do_fwd1 = '1') and ((alusrc_21 = "00") or (alusrc_21 = "01" and curr.op.alusrc3 = '0')) else
+					curr.op.readdata1 when (alusrc_21 = "00") or (alusrc_21 = "01" and curr.op.alusrc3 = '0') else
+					ZERO_DATA;
+
+	alu_input_b <= 	fwd2_val when (do_fwd2 = '1') and (alusrc_21 = "00") else
+					curr.op.readdata2 when (alusrc_21 = "00") else
+					curr.op.imm;
+
+	alu_inst : entity work.alu
+	port map (
+		op => curr.op.aluop,
+		A => alu_input_a,
+		B => alu_input_b,
+		R => aluresult,
+		Z => zero
 	);
 
+	fwd1_inst : entity work.fwd
+	port map (
+		reg_write_mem => reg_write_mem,
+		reg_write_wb => reg_write_wr,
 
-	fwd_2_inst : entity work.fwd
-	port map(
-		-- from Mem
-		reg_write_mem => reg_write_mem, 
-		-- from WB
-		reg_write_wb => reg_write_wr, 
-		-- from/to EXEC
-		reg => op_reg.rs2,      
-		val => fwd2_val,     
-		do_fwd => fwd2  
+		reg 	=> curr.op.rs1,
+		val 	=> fwd1_val,
+		do_fwd 	=> do_fwd1
 	);
 
+	fwd2_inst : entity work.fwd
+	port map (
+		reg_write_mem => reg_write_mem,
+		reg_write_wb => reg_write_wr,
+
+		reg 	=> curr.op.rs2,
+		val 	=> fwd2_val,
+		do_fwd 	=> do_fwd2
+	);
 end architecture;
