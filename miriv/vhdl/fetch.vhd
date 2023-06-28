@@ -38,6 +38,14 @@ begin
 	fetch_instr : process(all)
 	begin
 		
+		if (res_n = '0') then
+			pc <= (1 downto 0 => '0', others => '1');
+		elsif (rising_edge(clk)) then
+			if (stall = '0') then
+				pc <= pc_next;
+			end if;
+		end if;
+
 		mem_out <= MEM_OUT_NOP;
 		mem_out.rd <= '1';
 
@@ -56,13 +64,5 @@ begin
 			instr <= reverse_bytes(mem_in.rddata);
 		end if;
 
-		if (res_n = '0') then
-			pc <= (1 downto 0 => '0', others => '1');
-		elsif (rising_edge(clk)) then
-			if (stall = '0') then
-				pc <= pc_next;
-			end if;
-		end if;
 	end process;
-
 end architecture;

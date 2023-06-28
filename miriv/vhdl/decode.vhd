@@ -38,48 +38,28 @@ architecture rtl of decode is
 	signal rddata1, rddata2 : data_type;
 
 	function generate_immediate(opcode : opcode_type; instr : instr_type) return data_type is
-		variable ret_val : data_type;
-		variable tmp : std_logic_vector(12 downto 0);
-		variable tmp_j : std_logic_vector(20 downto 0);
+		variable imm : data_type;
 	begin
-			tmp := (others => '0');
-			tmp_j := (others => '0');
-			ret_val := (others => '0');
+		case opcode is
 
-			case opcode is
-				-- S-type
-				when OPC_STORE =>
-					tmp := instr(31) & instr(31 downto 25) & instr(11 downto 7); -- Value 31 is used twice? "Because tmp is 13 Bit long"
-					ret_val := std_logic_vector(resize(signed(tmp), ret_val'length));
+			when OPC_JALR | OPC_LOAD | OPC_OP_IMM => -- I-type
+				imm := (31 downto 11 => instr(31)) & instr(30 downto 25) & instr(24 downto 21) & instr(20);
 
-				--B-type 
-				when OPC_BRANCH =>
-					tmp := instr(31) & instr(7) & instr(30 downto 25) & instr(11 downto 8) & '0';
-					ret_val := std_logic_vector(resize(signed(tmp), ret_val'length));
+			when OPC_STORE =>  -- S-type 
+				imm := (31 downto 11 => instr(31)) & instr(30 downto 25) & instr(11 downto 8) & instr(7);
 
-				-- U-type
-				when OPC_LUI =>
-					ret_val := instr(31 downto 12) & x"000";
-				when OPC_AUIPC =>
-					ret_val := instr(31 downto 12) & x"000";
+			when OPC_BRANCH => -- B-type
+				imm := (31 downto 12 => instr(31)) & instr(7) & instr(30 downto 25) & instr(11 downto 8) & '0'; 
 
-				-- J-type
-				when OPC_JAL =>
-					tmp_j := instr(31) & instr(19 downto 12) & instr(20) & instr(30 downto 25) & instr(24 downto 21) & '0';
-					ret_val := std_logic_vector(resize(signed(tmp_j), ret_val'length));
+			when OPC_LUI | OPC_AUIPC => -- U-type
+				imm := instr(31) & instr(30 downto 20) & instr(19 downto 12) & (11 downto 0 => '0');
 
-				-- R-type
-				when OPC_OP =>
-					ret_val := (others => '0');
-
-				-- I-type
-				when others =>
-					tmp := instr(31) & instr(31 downto 20); -- 31 wird doppelt genommen? Wieso nicht 31 downto 20 und dann sign extenden? "Because tmp is 13 Bit long"
-					ret_val := std_logic_vector(resize(signed(tmp), ret_val'length));
-
-			end case;
-
-			return ret_val; 
+			when OPC_JAL => 
+				imm := (31 downto 20 => instr(31)) & instr(19 downto 12) & instr(20) & instr(30 downto 25) & instr(24 downto 21) & '0';
+			when others =>
+				imm := (others => '0');
+		end case;
+		return imm;
 	end function;
 
 	function get_alu_op(funct3 : std_logic_vector(FUNCT3_WIDTH-1 downto 0);
@@ -317,7 +297,6 @@ begin
 	begin
 
 
-
 	-- extract operands from instruction
 		opcode 	:= instr_reg(6 downto 0);	
 		rd 	:= instr_reg(11 downto 7);
@@ -352,12 +331,6 @@ begin
 			when OPC_JAL 	=> decode_J_type_instr;
 			when OPC_LUI 	=> decode_lui_instr;
 			when OPC_AUIPC 	=> decode_auipc_instr;
-		--	when OPC_NOP 	=> 
-		--		if (funct3 = "000") then
-	--				decode_nop;
-		 
-	--				exc_dec <= '1';
-	--			end if;
 			when others 	=> exc_dec <= '1';
 		end case;
 		

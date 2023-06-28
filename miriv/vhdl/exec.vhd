@@ -59,7 +59,7 @@ architecture rtl of exec is
 		else 
 			case alusrc is
 				when "000" | "010" 	=> B := op.readdata2;
-				when "001" 		=> B := op.imm;	
+				when "001" 			=> B := op.imm;	
 				when others 		=> B := ZERO_DATA; 
 			end case;
 	
@@ -124,7 +124,7 @@ begin
 	end process;
 
 	aluA <= fwd1_val when fwd1 = '1' else op_reg.readdata1;
-	aluB <= get_operand_B(op_reg, fwd2, fwd2_val); -- second alu operand
+	aluB <= get_operand_B(op_reg, fwd2, fwd2_val); 
 	pc_old_out <= pc_reg;
 	pc_new_out <= calculate_pc(pc_reg, op_reg);
 	wrdata 	   <= op_reg.readdata2 when mem_reg.mem.memwrite = '1' else ZERO_DATA;

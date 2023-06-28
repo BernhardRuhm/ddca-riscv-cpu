@@ -1,0 +1,111 @@
+# vsim -c -t ps work.decode_tb -quiet -do "run -all;quit -f" 
+# Start time: 20:57:36 on Jun 28,2023
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+# //  Questa Intel Starter FPGA Edition-64
+# //  Version 2021.2 linux_x86_64 Apr 14 2021
+# //
+# //  Copyright 1991-2021 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# run -all
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000000 instr = 002081B3 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 00000000
+# 
+#    Time: 45 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 401101B3 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 55 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 001111B3 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 65 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 001121B3 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 75 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 001131B3 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 85 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 001141B3 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 95 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 001151B3 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 105 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 401151B3 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 115 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 001161B3 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 125 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 001171B3 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 135 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000000 instr = 00A10193 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 00000000
+# 
+#    Time: 145 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 02411193 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 155 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 00512193 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 165 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 00513193 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 175 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 01F14193 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 185 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 00215193 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 195 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 40215193 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 205 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 00716193 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 215 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 00717193 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 225 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 0020A023 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 235 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 0000A183 reg_write.write = 0 reg_write.reg = 00011 reg_write.data = 11111111
+# 
+#    Time: 245 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 00111023 reg_write.write = 0 reg_write.reg = 00000 reg_write.data = 11111111
+# 
+#    Time: 255 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 00011183 reg_write.write = 0 reg_write.reg = 00000 reg_write.data = 11111111
+# 
+#    Time: 265 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 00015183 reg_write.write = 0 reg_write.reg = 00000 reg_write.data = 11111111
+# 
+#    Time: 275 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 00208023 reg_write.write = 0 reg_write.reg = 00000 reg_write.data = 11111111
+# 
+#    Time: 285 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 00008183 reg_write.write = 0 reg_write.reg = 00000 reg_write.data = 11111111
+# 
+#    Time: 295 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 00208563 reg_write.write = 0 reg_write.reg = 00000 reg_write.data = 11111111
+# 
+#    Time: 305 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 00209563 reg_write.write = 0 reg_write.reg = 00000 reg_write.data = 11111111
+# 
+#    Time: 315 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 008001EF reg_write.write = 0 reg_write.reg = 00000 reg_write.data = 11111111
+# 
+#    Time: 325 ns  Iteration: 0  Instance: /decode_tb
+# ** Note: PASSED:  stall = 0 flush = 0 pc_in = 0000000000000100 instr = 00000013 reg_write.write = 0 reg_write.reg = 00000 reg_write.data = 00000000
+# 
+#    Time: 335 ns  Iteration: 0  Instance: /decode_tb
+# quit -f
+# End time: 20:57:36 on Jun 28,2023, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0

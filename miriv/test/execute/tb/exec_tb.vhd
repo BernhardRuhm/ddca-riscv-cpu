@@ -277,7 +277,7 @@ architecture tb of execute_tb is
 	end procedure;
 begin
 	
-	decode_inst : entity work.exec
+	exec_inst : entity work.exec
 	port map(
 		clk           => clk, 
 		res_n         => res_n,
@@ -296,7 +296,7 @@ begin
 		wbop_out      => output.wbop_out,
 
 		-- FWD
-		exec_op       => output.exec_op,
+		exec_op       => open,
 		reg_write_mem => reg_write_mem,
 		reg_write_wr  => reg_write_wr 
 	);
@@ -330,7 +330,7 @@ begin
 
 		wait until res_n = '1';
 		timeout(1, CLK_PERIOD);
-
+		output.exec_op <= EXEC_NOP;
 		while not endfile(output_file) loop
 			output_ref := read_next_output(output_file);	
 			wait until falling_edge(clk);
